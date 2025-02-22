@@ -2,18 +2,18 @@
 
 ¡Hola a todos! Soy Isaac Rodríguez Cabezalí y este es mi proyecto escolar: ¡Crucigramas Cooperativos! 
 
-##  Explicación de la idea del proyecto 
+## 📖 Explicación de la idea del proyecto 📖
 
 Ultimamente las clases son muy aburridas asi que tantos mis compañeros como yo nos dedicamos a buscar cosas que hacer y formas de entretenernos. Los crucigramas siempre son una buena opción, pero no podemos jugarlos juntos. ¡Así fue como se me ocurrió crear una web de crucigramas cooperativos!
 
-##  Mis objetivos 
+## 🎯 Mis objetivos 🎯
 
-🤝 **¡Diversión en equipo!**  Quiero que mi juego sea una forma genial de pasar tiempo con amigos y familiares, ¡ayudándonos a resolver los crucigramas!
-📱 **¡Accesible para todos!**  Mi página web se puede usar desde cualquier ordenador, móvil o tablet con internet. ¡No hace falta instalar nada ni registrarse! 
-🩷 **¡Para todos los gustos!**  Quiero crear crucigramas de diferentes temas (cine, historia, deportes...) y con diferentes niveles de dificultad. ¡Así todos pueden jugar!
-🏆 **¡Estadísticas para picarse!**  Al final de cada partida, veremos quién ha acertado más letras, quién ha fallado más... ¡Así se fomenta una competitividad sana! 
+* 🤝 **¡Diversión en equipo!**  Quiero que mi juego sea una forma genial de pasar tiempo con amigos y familiares, ¡ayudándonos a resolver los crucigramas!
+* 📱 **¡Accesible para todos!**  Mi página web se puede usar desde cualquier ordenador, móvil o tablet con internet. ¡No hace falta instalar nada ni registrarse! 
+* 🩷 **¡Para todos los gustos!**  Quiero crear crucigramas de diferentes temas (cine, historia, deportes...) y con diferentes niveles de dificultad. ¡Así todos pueden jugar!
+* 🏆 **¡Estadísticas para picarse!**  Al final de cada partida, veremos quién ha acertado más letras, quién ha fallado más... ¡Así se fomenta una competitividad sana! 
 
-## ⚙️ Tecnologías usadas ⚙️
+## 🌐 Tecnologías usadas 🌐
 
 * **Frontend:**
     🧠 React.js: ¡Es como el cerebro de la página web!
@@ -24,60 +24,50 @@ Ultimamente las clases son muy aburridas asi que tantos mis compañeros como yo 
 * **Alojamiento:**
     💻 Vercel: ¡Para que la página web esté siempre disponible! 
 
-##  Diagramas 
+## 📈 Diagramas 📈
 
-[Aquí puedes incluir diagramas de arquitectura, flujo de datos, etc. Puedes usar herramientas online como draw.io para crearlos]
+* **Diagrama de clases**
+![alt text](image.png)
 
-##  Página web 
+* **Diagrama de secuencia**
+![alt text](image-1.png)
 
-###  Mockup 
+## 💻 Página web 💻
 
-[Aquí puedes incluir un dibujo o diseño de cómo quieres que sea la página web. Puedes usar herramientas como Figma o Adobe XD]
+### 💭 Mockup 💭
 
-###  Paleta de colores 
+![alt text](image-2.png)
+
+### 🎨 Paleta de colores 🎨
 
 * EDEDE9
-* D6CCC2
+* 9F9890
 * F5EBE0
 * E3D5CA
 * D5BDAF
 
-[Puedes usar herramientas online como Coolors para crear paletas de colores]
+### ️👀 Logo ️👀
 
-### ️ Logo ️
+![alt text](<Logo.png>)
 
-[Aquí puedes incluir el logo de tu empresa. Puedes usar herramientas online como Canva para crearlo]
+### 🔗 Funcionalidades Web 🔗
 
-### Funcionalidades web
-
-* **¡Crea tu sala!**  Un jugador crea una sala y recibe un enlace o código para invitar a otros.
+* **¡Crea tu sala!**  El jugador que crea la sala recibe un código para invitar a sus amigos.
+* **¡Elige tu tema!**  Los jugadores pueden elegir el tema del crucigrama (cine, historia, etc.).
 * **¡Sincronización mágica!**  Todos los jugadores ven en tiempo real las letras que se escriben en el crucigrama.
 * **¡Casillas destacadas!**  La casilla donde está escribiendo un jugador se destaca para evitar confusiones.
 * **¡Estadísticas al final!**  Cada jugador puede ver sus estadísticas al final de la partida.
-* **¡Elige tu tema!**  Los jugadores pueden elegir el tema del crucigrama (cine, historia, etc.).
 
-## ️ Roadmap/Trello/Gantt ️
+## ️🗺️ Roadmap en Linear 🗺️
 
-[Aquí puedes incluir un enlace a tu roadmap, tablero de Trello o diagrama de Gantt. Puedes usar herramientas online como Trello o Asana]
+https://linear.app/crucigramas-cooperativos/join/5a082dc53c052fc059f552b910355bcf?s=3
 
-## ¡Únete a la diversión! 
+## 🐈‍⬛ Repositorio en GitHub 🐈‍⬛
 
-[Enlace a la página web del juego]
+https://github.com/Isroca23/Crucigramas-Cooperativos
 
-## Repositorio en GitHub 
-
-[Enlace al repositorio de GitHub: https://github.com/Isroca23/Crucigramas-Cooperativos]
-
-## ¡Anímate a colaborar! 
+## 👥¡Anímate a colaborar! 👥
 
 Si te gusta mi proyecto y quieres ayudarme a mejorarlo, ¡no dudes en contactarme!
 
-¡Espero que te guste mi juego! 
-
-## ¡Guías para añadir más contenido! ️
-
-* **Diagramas:** Muestra cómo funciona tu juego por dentro. Puedes dibujar cómo se conectan las diferentes partes (frontend, backend, base de datos...).
-* **Mockup:** Enseña cómo será la página web. Puedes dibujar la pantalla principal, la sala de juego, etc. ¡Cuanto más detallado, mejor!
-* **Roadmap:** Explica qué cosas quieres añadir al juego en el futuro. Por ejemplo, "añadir más temas de crucigramas", "crear un sistema de puntuación", etc.
-
-¡Recuerda! Este README es como tu carta de presentación. ¡Hazlo bonito y completo para que la gente se interese por tu proyecto!
+¡Espero que te guste mi juego!
