@@ -50,12 +50,7 @@ Este es un diseño de como pretendo que se vea la web:
 ![alt text](image-2.png)
 
 ### 🎨 Paleta de colores 🎨
-
-* EDEDE9: <span style="background-color:#EDEDE9; padding: 10px; border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;</span>  #EDEDE9
-* 9F9890: <span style="background-color:#9F9890; padding: 10px; border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;</span>  #9F9890
-* F5EBE0: <span style="background-color:#F5EBE0; padding: 10px; border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;</span>  #F5EBE0
-* E3D5CA: <span style="background-color:#E3D5CA; padding: 10px; border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;</span>  #E3D5CA
-* D5BDAF: <span style="background-color:#D5BDAF; padding: 10px; border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;</span>  #D5BDAF
+![alt text](Paleta.png)
 
 ### ️👀 Logo ️👀
 Este es el logo oficial del proyecto:
