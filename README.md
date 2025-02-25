@@ -36,25 +36,25 @@ Los crucigramas no solo son divertidos, también nos ayudan a aprender palabras 
 ### Diagrama de clases
 Este diagrama muestra las diferentes clases que componen mi juego y cómo se relacionan entre sí:
 
-![alt text](image.png)
+![alt text](readme_img/image.png)
 
 ### Diagrama de secuencia
 Este diagrama muestra cómo interactúan los diferentes componentes del juego para que los jugadores puedan resolver el crucigrama juntos:
 
-![alt text](image-1.png)
+![alt text](readme_img/image-1.png)
 
 ## 💻 Página web 💻
 
 ### 💭 Mockup 💭
 Este es un diseño de como pretendo que se vea la web:
-![alt text](image-2.png)
+![alt text](readme_img/image-2.png)
 
 ### 🎨 Paleta de colores 🎨
-![alt text](Paleta.png)
+![alt text](readme_img/Paleta.png)
 
 ### ️👀 Logo ️👀
 Este es el logo oficial del proyecto:
-![alt text](<Logo.png>)
+![alt text](readme_img/Logo.png)
 Es una letra C de Crucigramas y de Cooperativos formada por piezas de rompecabezas que simbolizan personas dandose la mano y trabajando en equipo.
 
 ### 🔗 Funcionalidades Web 🔗
@@ -74,6 +74,28 @@ https://linear.app/crucigramas-cooperativos/join/5a082dc53c052fc059f552b910355bc
 Este es el repositorio oficial con todo el codigo de mi proyecto:
 
 https://github.com/Isroca23/Crucigramas-Cooperativos
+
+## 🔧 Instalación y Ejecución 🔧
+
+### 1️⃣ Clonar el Repositorio 1️⃣
+```bash
+git clone https://github.com/tu-repo/autodefinido-cooperativo.git
+cd autodefinido-cooperativo
+```
+
+### 2️⃣ Configurar el Backend 2️⃣
+```bash
+cd backend
+npm install
+node index.js
+```
+
+### 3️⃣ Configurar el Frontend 3️⃣
+```bash
+cd frontend
+npm install
+npm start
+```
 
 ## 👥¡Anímate a colaborar! 👥
 
