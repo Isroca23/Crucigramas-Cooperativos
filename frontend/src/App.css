@@ -3,7 +3,54 @@ body {
   font-family: 'Arial', sans-serif;
 }
 
-h1 {
+.App {
   text-align: center;
-  margin-top: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.initial-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.initial-screen button,
+.initial-screen input {
+  margin: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.sala-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #fff;
+}
+
+.sala-screen h1 {
+  color: #8b4513;
+}
+
+.container {
+  width: 60%;
+  height: 60%;
+  background-color: #f5f5dc;
+  border: 2px solid #8b4513;
+  margin: 20px;
+}
+
+.sidebar {
+  width: 30%;
+  height: 60%;
+  background-color: #dcdcdc;
+  border: 2px solid #8b4513;
+  margin: 20px;
 }

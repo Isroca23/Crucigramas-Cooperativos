@@ -79,8 +79,8 @@ https://github.com/Isroca23/Crucigramas-Cooperativos
 
 ### 1️⃣ Clonar el Repositorio 1️⃣
 ```bash
-git clone https://github.com/tu-repo/autodefinido-cooperativo.git
-cd autodefinido-cooperativo
+git clone https://github.com/Isroca23/Crucigramas-Cooperativos.git
+cd Crucigramas-Cooperativo
 ```
 
 ### 2️⃣ Configurar el Backend 2️⃣

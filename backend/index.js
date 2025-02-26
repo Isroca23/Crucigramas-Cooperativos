@@ -5,6 +5,7 @@ const cors = require('cors');
 const { generarCrucigrama } = require('./crucigramas');
 const { actualizarEstadisticas } = require('./estadisticas');
 const { calcularEstadisticas } = require('./estadisticas');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const server = http.createServer(app);
@@ -26,7 +27,12 @@ app.get('/api/generar', async (req, res) => {
   }
 });
 
-// Evento de conexión de jugadores
+app.post('/api/crearSala', (req, res) => {
+  const codigoSala = uuidv4();
+  salas[codigoSala] = { jugadores: [] };
+  res.json({ codigoSala });
+});
+
 io.on('connection', (socket) => {
   console.log('Jugador conectado: ' + socket.id);
 
@@ -46,38 +52,23 @@ io.on('connection', (socket) => {
 
   // Enviar letra a todos los jugadores de la sala
   socket.on('letra', (data) => {
-    io.to(data.codigoSala).emit('letra', data); // Emitimos la letra a todos los jugadores de la sala
-    // Actualizamos las estadísticas al enviar la letra
-    actualizarEstadisticas(data.jugador, data.letra, data.posicion, data.esCorrecto);
+    const { letra, codigoSala } = data;
+    io.to(codigoSala).emit('letra', letra);
   });
 
   // Evento de desconexión
   socket.on('disconnect', () => {
-    for (let sala in salas) {
-      const index = salas[sala].jugadores.indexOf(socket.id);
+    for (const codigoSala in salas) {
+      const index = salas[codigoSala].jugadores.indexOf(socket.id);
       if (index !== -1) {
-        salas[sala].jugadores.splice(index, 1);
-        io.to(sala).emit('jugadores', salas[sala].jugadores);
-        console.log(`Jugador ${socket.id} desconectado de la sala ${sala}`);
+        salas[codigoSala].jugadores.splice(index, 1);
+        io.to(codigoSala).emit('jugadores', salas[codigoSala].jugadores);
         break;
       }
     }
   });
-
-  // Enviar estadísticas al final de la partida
-  socket.on('fin-partida', () => {
-    const estadisticas = calcularEstadisticas(salas);
-    socket.emit('estadisticas', estadisticas);
-  });
 });
 
-// Iniciar servidor
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-});
-
-// Página de bienvenida
-app.get('/', (req, res) => {
-  res.send('Juego de crucigramas');
+server.listen(5000, () => {
+  console.log('Servidor escuchando en puerto 5000');
 });
