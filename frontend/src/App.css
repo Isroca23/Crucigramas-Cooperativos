@@ -47,6 +47,18 @@ body {
   margin: 20px;
 }
 
+.info-container {
+  background-color: #f5f5dc; /* Color crema */
+  float: right;
+  width: 30%;
+  padding: 10px;
+}
+
+.container {
+  float: left;
+  width: 65%;
+}
+
 .sidebar {
   width: 30%;
   height: 60%;
