@@ -2,25 +2,25 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { generarCrucigrama } = require('./crucigramas');
-const { actualizarEstadisticas } = require('./estadisticas');
-const { calcularEstadisticas } = require('./estadisticas');
+const { actualizarEstadisticas, calcularEstadisticas } = require('./estadisticas');
+const { inicializarTablero } = require('./tablero');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
+const port = 5000;
 
 // Inicializar socket.io
 const socketIo = require('socket.io');
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000", // Allow requests from this origin
+    origin: "http://localhost:3000", // Permitir solicitudes desde este origen
     methods: ["GET", "POST"]
   }
 });
 
 app.use(cors({
-  origin: "http://localhost:3000"
-   // Allow requests from this origin
+  origin: "http://localhost:3000" // Permitir solicitudes desde este origen
 }));
 app.use(express.json());
 
@@ -37,6 +37,7 @@ app.get('/api/generar', async (req, res) => {
   }
 });
 
+// Ruta para crear una sala
 app.post('/api/crearSala', (req, res) => {
   const { nombre, codigoSalaInput } = req.body;
 
@@ -58,52 +59,64 @@ app.post('/api/crearSala', (req, res) => {
   res.json({ codigoSala, jugador });
 });
 
+// Manejo de conexiones de socket.io
 io.on('connection', (socket) => {
   console.log('Jugador conectado: ' + socket.id);
 
-  socket.on('unirseSala', (data) => {
-    const { codigoSala, nombre } = data;
+  socket.on('unirseSala', ({ codigoSala, nombre }) => {
+    console.log(`Evento unirseSala: ${nombre} intenta unirse a la sala ${codigoSala}`);
     if (!salas[codigoSala]) {
-      socket.emit('error', 'La sala no existe');
-      return;
+      salas[codigoSala] = { jugadores: [] };
     }
-
-    const jugador = { id: socket.id, nombre: nombre || `Jugador ${socket.id}` };
+    const jugador = { id: socket.id, nombre };
     salas[codigoSala].jugadores.push(jugador);
     socket.join(codigoSala);
     console.log(`Jugador ${socket.id} (${nombre}) se unió a la sala ${codigoSala}`);
 
     io.to(codigoSala).emit('jugadores', salas[codigoSala].jugadores);
+    io.to(codigoSala).emit('conectarSala', { mensaje: `${nombre} se ha unido a la sala.` });
   });
 
-  socket.on('mensaje', (data) => {
-    const { mensaje, codigoSala } = data;
-    io.to(codigoSala).emit('mensaje', { id: socket.id, mensaje });
+  socket.on('mensaje', ({ mensaje, codigoSala }) => {
+    console.log(`Evento mensaje: ${mensaje} en la sala ${codigoSala} por ${socket.id}`);
+    io.to(codigoSala).emit('mensaje', { mensaje, nombre: socket.id });
+  });
+
+  socket.on('salirSala', ({ codigoSala, nombre }) => {
+    console.log(`Evento salirSala: ${nombre} intenta salir de la sala ${codigoSala}`);
+    if (salas[codigoSala]) {
+      salas[codigoSala].jugadores = salas[codigoSala].jugadores.filter(jugador => jugador.id !== socket.id);
+      io.to(codigoSala).emit('jugadores', salas[codigoSala].jugadores);
+      io.to(codigoSala).emit('desconectarSala', { mensaje: `${nombre} ha salido de la sala.` });
+
+      if (salas[codigoSala].jugadores.length === 0) {
+        delete salas[codigoSala];
+        console.log(`Sala ${codigoSala} eliminada porque no tiene jugadores.`);
+      }
+    }
   });
 
   socket.on('disconnect', () => {
-    let salaVacia = false;
+    console.log('Jugador desconectado: ' + socket.id);
     for (const codigoSala in salas) {
-      const index = salas[codigoSala].jugadores.findIndex(jugador => jugador.id === socket.id);
-      if (index !== -1) {
-        salas[codigoSala].jugadores.splice(index, 1);
-        io.to(codigoSala).emit('jugadores', salas[codigoSala].jugadores);
-        console.log(`Jugador desconectado: ${socket.id}`);
+        const sala = salas[codigoSala];
+        const jugadorIndex = sala.jugadores.findIndex(jugador => jugador.id === socket.id);
+        if (jugadorIndex !== -1) {
+          const [jugador] = sala.jugadores.splice(jugadorIndex, 1);
+          io.to(codigoSala).emit('jugadores', sala.jugadores);
+          io.to(codigoSala).emit('desconectarSala', { mensaje: `Jugador ${jugador.nombre} ha salido de la sala.` });
 
-        if (salas[codigoSala].jugadores.length === 0) {
-          delete salas[codigoSala];
-          console.log(`Sala ${codigoSala} eliminada por falta de jugadores`);
-          salaVacia = true;
-        }
-        break;
+          if (sala.jugadores.length === 0) {
+        delete salas[codigoSala];
+        console.log(`Sala ${codigoSala} eliminada porque no tiene jugadores.`);
+          }
+          break;
       }
-    }
-    if (!salaVacia) {
-      console.log(`Jugador desconectado: ${socket.id}`);
     }
   });
 });
 
-server.listen(5000, () => {
-  console.log('Servidor escuchando en puerto 5000');
+// Iniciar el servidor
+server.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });
