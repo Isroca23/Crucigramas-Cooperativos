@@ -64,6 +64,11 @@ io.on('connection', (socket) => {
   console.log('Jugador conectado: ' + socket.id);
 
   socket.on('unirseSala', ({ codigoSala, nombre }) => {
+      if (!codigoSala || !nombre) {
+        socket.emit('error', 'Código de sala y nombre son requeridos.');
+        return;
+      }
+  
     console.log(`Evento unirseSala: ${nombre} intenta unirse a la sala ${codigoSala}`);
     if (!salas[codigoSala]) {
       salas[codigoSala] = { jugadores: [] };
@@ -78,11 +83,21 @@ io.on('connection', (socket) => {
   });
 
   socket.on('mensaje', ({ mensaje, codigoSala }) => {
+      if (!mensaje || !codigoSala) {
+        socket.emit('error', 'Mensaje y código de sala son requeridos.');
+        return;
+      }
+  
     console.log(`Evento mensaje: ${mensaje} en la sala ${codigoSala} por ${socket.id}`);
     io.to(codigoSala).emit('mensaje', { mensaje, nombre: socket.id });
   });
 
   socket.on('salirSala', ({ codigoSala, nombre }) => {
+      if (!codigoSala || !nombre) {
+        socket.emit('error', 'Código de sala y nombre son requeridos.');
+        return;
+      }
+  
     console.log(`Evento salirSala: ${nombre} intenta salir de la sala ${codigoSala}`);
     if (salas[codigoSala]) {
       salas[codigoSala].jugadores = salas[codigoSala].jugadores.filter(jugador => jugador.id !== socket.id);
