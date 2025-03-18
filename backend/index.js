@@ -1,125 +1,91 @@
 const express = require('express');
 const http = require('http');
-const cors = require('cors');
-const { generarCrucigrama } = require('./crucigramas');
-const { actualizarEstadisticas, calcularEstadisticas } = require('./estadisticas');
-const { inicializarTablero } = require('./tablero');
+const { Server } = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*', // Permitir solicitudes desde cualquier origen
+    methods: ['GET', 'POST'],
+  },
+});
+
 const port = 5000;
 
-// Inicializar socket.io
-const socketIo = require('socket.io');
-const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: "http://localhost:3000", // Permitir solicitudes desde este origen
-    methods: ["GET", "POST"]
-  }
-});
+// Almacena las salas y sus jugadores
+const salas = {};
 
-app.use(cors({
-  origin: "http://localhost:3000" // Permitir solicitudes desde este origen
-}));
-app.use(express.json());
-
-// Almacenamos las salas en memoria
-let salas = {};
-
-// Ruta para generar un crucigrama
-app.get('/api/generar', async (req, res) => {
-  try {
-    const crucigrama = await generarCrucigrama();
-    res.json(crucigrama);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al generar el crucigrama' });
-  }
-});
-
-// Ruta para crear una sala
-app.post('/api/crearSala', (req, res) => {
-  const { nombre, codigoSalaInput } = req.body;
-
-  if (!nombre) {
-    return res.status(400).json({ error: 'Por favor, introduce tu nombre.' });
-  }
-
-  let codigoSala = codigoSalaInput || uuidv4();
-
-  if (salas[codigoSala]) {
-    return res.status(400).json({ error: 'La sala con este ID ya existe.' });
-  }
-
-  const jugador = { id: uuidv4(), nombre };
-  salas[codigoSala] = { jugadores: [jugador] };
-
-  console.log(`Sala creada: ${codigoSala}`); // Avisar por terminal
-
-  res.json({ codigoSala, jugador });
-});
-
-// Manejo de conexiones de socket.io
+// Evento de conexión de socket
 io.on('connection', (socket) => {
-  console.log('Jugador conectado: ' + socket.id);
+  console.log(`Jugador conectado: ${socket.id}`);
 
-  socket.on('unirseSala', ({ codigoSala, nombre }) => {
-      if (!codigoSala || !nombre) {
-        socket.emit('error', 'Código de sala y nombre son requeridos.');
+  // Crear una sala
+  socket.on('crearSala', ({ nombre, codigoSalaInput }, callback) => {
+    const codigoSala = codigoSalaInput || uuidv4();
+
+    if (salas[codigoSala]) {
+      callback({ error: 'La sala con este ID ya existe.' });
         return;
       }
   
-    console.log(`Evento unirseSala: ${nombre} intenta unirse a la sala ${codigoSala}`);
+    const jugador = { id: socket.id, nombre };
+    salas[codigoSala] = { jugadores: [jugador] };
+
+    socket.join(codigoSala);
+    console.log(`Sala creada: ${codigoSala}`);
+    io.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
+
+    callback({ codigoSala, jugador });
+  });
+
+  // Unirse a una sala
+  socket.on('unirseSala', ({ codigoSala, nombre }, callback) => {
     if (!salas[codigoSala]) {
-      salas[codigoSala] = { jugadores: [] };
+      callback({ error: 'La sala no existe.' });
+      return;
     }
+
     const jugador = { id: socket.id, nombre };
     salas[codigoSala].jugadores.push(jugador);
+
     socket.join(codigoSala);
     console.log(`Jugador ${socket.id} (${nombre}) se unió a la sala ${codigoSala}`);
+    io.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
 
-    io.to(codigoSala).emit('jugadores', salas[codigoSala].jugadores);
-    io.to(codigoSala).emit('conectarSala', { mensaje: `${nombre} se ha unido a la sala.` });
+    callback({ jugador });
   });
 
-  socket.on('mensaje', ({ mensaje, codigoSala }) => {
-      if (!mensaje || !codigoSala) {
-        socket.emit('error', 'Mensaje y código de sala son requeridos.');
-        return;
-      }
-  
-    console.log(`Evento mensaje: ${mensaje} en la sala ${codigoSala} por ${socket.id}`);
-    io.to(codigoSala).emit('mensaje', { mensaje, nombre: socket.id });
-  });
-
+  // Salir de una sala
   socket.on('salirSala', ({ codigoSala, nombre }) => {
-      if (!codigoSala || !nombre) {
-        socket.emit('error', 'Código de sala y nombre son requeridos.');
-        return;
-      }
-  
-    console.log(`Evento salirSala: ${nombre} intenta salir de la sala ${codigoSala}`);
-    if (salas[codigoSala]) {
-      salas[codigoSala].jugadores = salas[codigoSala].jugadores.filter(jugador => jugador.id !== socket.id);
-      io.to(codigoSala).emit('jugadores', salas[codigoSala].jugadores);
-      io.to(codigoSala).emit('desconectarSala', { mensaje: `${nombre} ha salido de la sala.` });
+    if (!salas[codigoSala]) return;
+
+    salas[codigoSala].jugadores = salas[codigoSala].jugadores.filter(
+      (jugador) => jugador.id !== socket.id
+    );
+
+    console.log(`Jugador ${socket.id} (${nombre}) salió de la sala ${codigoSala}`);
+    io.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
 
       if (salas[codigoSala].jugadores.length === 0) {
         delete salas[codigoSala];
         console.log(`Sala ${codigoSala} eliminada porque no tiene jugadores.`);
       }
-    }
   });
 
+  // Desconexión del jugador
   socket.on('disconnect', () => {
-    console.log('Jugador desconectado: ' + socket.id);
+    console.log(`Jugador desconectado: ${socket.id}`);
+
     for (const codigoSala in salas) {
         const sala = salas[codigoSala];
-        const jugadorIndex = sala.jugadores.findIndex(jugador => jugador.id === socket.id);
+      const jugadorIndex = sala.jugadores.findIndex((jugador) => jugador.id === socket.id);
+
         if (jugadorIndex !== -1) {
           const [jugador] = sala.jugadores.splice(jugadorIndex, 1);
-          io.to(codigoSala).emit('jugadores', sala.jugadores);
-          io.to(codigoSala).emit('desconectarSala', { mensaje: `Jugador ${jugador.nombre} ha salido de la sala.` });
+        console.log(`Jugador ${jugador.nombre} eliminado de la sala ${codigoSala}`);
+        io.to(codigoSala).emit('jugadoresActualizados', sala.jugadores);
 
           if (sala.jugadores.length === 0) {
         delete salas[codigoSala];
