@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import axios from 'axios';
 import io from 'socket.io-client';
+import logo from './Logo.png';
 
 const socket = io('http://localhost:5000');
 
@@ -12,9 +12,9 @@ function App() {
   const [nombre, setNombre] = useState('');
   const [error, setError] = useState('');
   const [jugadores, setJugadores] = useState([]);
+  const [pestanaActiva, setPestanaActiva] = useState('palabras');
 
   useEffect(() => {
-    // Escuchar eventos del servidor
     socket.on('jugadoresActualizados', (jugadoresActualizados) => {
       setJugadores(jugadoresActualizados);
     });
@@ -24,7 +24,6 @@ function App() {
     });
 
     return () => {
-      // Limpiar eventos al desmontar el componente
       socket.off('jugadoresActualizados');
       socket.off('connect_error');
     };
@@ -33,7 +32,6 @@ function App() {
   const crearSala = () => {
     if (!nombre) {
       setError('Por favor, introduce tu nombre.');
-      console.error('Error: Por favor, introduce tu nombre.');
       return;
     }
 
@@ -43,20 +41,18 @@ function App() {
       } else {
         setCodigoSala(response.codigoSala);
         setJugadores([response.jugador]);
-      setScreen('sala');
-    }
+        setScreen('sala');
+      }
     });
   };
 
   const unirseSala = () => {
     if (!codigoSalaInput) {
       setError('Por favor, introduce un código de sala.');
-      console.error('Error: Por favor, introduce un código de sala.');
       return;
     }
     if (!nombre) {
       setError('Por favor, introduce tu nombre.');
-      console.error('Error: Por favor, introduce tu nombre.');
       return;
     }
 
@@ -66,18 +62,18 @@ function App() {
       } else {
         setCodigoSala(codigoSalaInput);
         setScreen('sala');
-    }
+      }
     });
   };
 
   const salirSala = () => {
     socket.emit('salirSala', { codigoSala, nombre });
-      setScreen('initial');
-      setCodigoSala('');
-      setCodigoSalaInput('');
-      setNombre('');
-      setError('');
-      setJugadores([]);
+    setScreen('initial');
+    setCodigoSala('');
+    setCodigoSalaInput('');
+    setNombre('');
+    setError('');
+    setJugadores([]);
   };
 
   return (
@@ -98,20 +94,67 @@ function App() {
             placeholder="Código de Sala"
           />
           <button onClick={unirseSala}>Unirse a Sala</button>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && <p style={{ color: 'red', marginTop: '0.5rem' }}>{error}</p>}
         </div>
       )}
+
       {screen === 'sala' && (
-        <div className="sala-screen">
-          <h1>Sala: {codigoSala}</h1>
-            <h2>Jugadores Conectados:</h2>
-            <ul>
-              {jugadores.map((jugador) => (
-                <li key={jugador.id}>{jugador.nombre}</li>
-              ))}
-            </ul>
-          <button onClick={salirSala}>Salir de la Sala</button>
-        </div>
+        <>
+          {/* Header */}
+          <div className="header-bar">
+            <div className="header-left">
+              <img src={logo} alt="Logo" className="logo" />
+            </div>
+            <div className="header-center">
+              <h1><strong>Crucigramas Cooperativos</strong></h1>
+            </div>
+            <div className="header-right">
+              {/* Aquí incluirás los iconos manualmente */}
+            </div>
+          </div>
+
+          {/* Sub-header */}
+          <div className="sub-header">
+            <span>Jugador: <strong>{nombre}</strong></span>
+            <span>ID Sala: <strong>{codigoSala}</strong></span>
+          </div>
+
+          {/* Contenedores principales */}
+          <div className="main-content">
+            <div className="crossword-container">
+              <p>Aquí se generará el crucigrama</p>
+            </div>
+
+            <div className="tabs-container">
+              <div className="tabs">
+                <button
+                  className={pestanaActiva === 'palabras' ? 'tab active' : 'tab'}
+                  onClick={() => setPestanaActiva('palabras')}
+                >
+                  Palabras
+                </button>
+                <button
+                  className={pestanaActiva === 'chat' ? 'tab active' : 'tab'}
+                  onClick={() => setPestanaActiva('chat')}
+                >
+                  Chat
+                </button>
+                <button
+                  className={pestanaActiva === 'estadisticas' ? 'tab active' : 'tab'}
+                  onClick={() => setPestanaActiva('estadisticas')}
+                >
+                  Estadísticas
+                </button>
+              </div>
+
+              <div className="tab-content">
+                {pestanaActiva === 'palabras' && <p>Aquí se mostrarán las palabras.</p>}
+                {pestanaActiva === 'chat' && <p>Aquí estará el chat.</p>}
+                {pestanaActiva === 'estadisticas' && <p>Aquí se mostrarán las estadísticas.</p>}
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
