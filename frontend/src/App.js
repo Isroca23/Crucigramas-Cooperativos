@@ -109,7 +109,7 @@ function App() {
               <h1><strong>Crucigramas Cooperativos</strong></h1>
             </div>
             <div className="header-right">
-              {/* Aquí incluirás los iconos manualmente */}
+              {/* Incluir iconos */}
             </div>
           </div>
 
