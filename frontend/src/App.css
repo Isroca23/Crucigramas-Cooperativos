@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700&display=swap');
+
 :root {
   --color-bg: #EDEDE9;
   --color-dark: #9F9890;
@@ -25,12 +27,30 @@ body {
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-bg);
-  padding: 0.75rem 1.5rem;
+  padding: 1.5rem 1.5rem;
   border-bottom: 1px solid var(--color-dark);
+}
+
+.header-left {
+  position: relative;
 }
 
 .logo {
   height: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 55px;
+  height: 55px;
+  background-color: var(--color-dark);
+  border-radius: 50%;
+  z-index: 0;
 }
 
 .header-center h1 {
@@ -74,6 +94,7 @@ body {
   background-color: var(--color-dark);
   border-radius: 8px;
   padding: 1rem;
+  margin: 5%;
   box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
 }
 
@@ -84,6 +105,10 @@ body {
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  padding: 2rem;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  margin-right: 5%;
   box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
 }
 
@@ -100,15 +125,18 @@ body {
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tab:hover {
   background-color: var(--color-soft);
+  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .tab.active {
   background-color: var(--color-soft);
   font-weight: bold;
+  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .tab-content {

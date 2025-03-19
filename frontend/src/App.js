@@ -103,6 +103,7 @@ function App() {
           {/* Header */}
           <div className="header-bar">
             <div className="header-left">
+              <div className="logo-circle"></div>
               <img src={logo} alt="Logo" className="logo" />
             </div>
             <div className="header-center">
