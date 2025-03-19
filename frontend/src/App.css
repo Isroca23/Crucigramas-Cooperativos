@@ -59,15 +59,24 @@ body {
   color: var(--color-dark);
 }
 
-.header-right .icon {
+.header-right .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   margin-left: 1rem;
-  cursor: pointer;
-  color: var(--color-dark);
-  transition: color 0.2s;
 }
 
-.header-right .icon:hover {
+.header-right .icon-button:hover {
   color: var(--color-accent);
+}
+
+.header-right .icon {
+  width: 30px;
+  height: 30px;
+  fill: var(--color-dark);
+  transition: fill 0.2s, transform 0.2s;
 }
 
 /* Sub-header (jugador + id sala) */

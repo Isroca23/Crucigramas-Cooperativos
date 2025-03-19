@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import io from 'socket.io-client';
-import logo from './Logo.png';
+import logo from './img/Logo.png';
+import { ReactComponent as GroupAddIcon } from './img/GroupAddRounded.svg';
+import { ReactComponent as GroupIcon } from './img/GroupRounded.svg';
+import { ReactComponent as ExitIcon } from './img/ExitBold.svg';
 
 const socket = io('http://localhost:5000');
 
@@ -110,7 +113,20 @@ function App() {
               <h1><strong>Crucigramas Cooperativos</strong></h1>
             </div>
             <div className="header-right">
-              {/* Incluir iconos */}
+              {/* Icono para invitar jugadores */}
+              <button className="icon-button" onClick={() => {/* Lógica para invitar jugadores */}}>
+                <GroupAddIcon className="icon" />
+              </button>
+
+              {/* Icono para ver jugadores */}
+              <button className="icon-button" onClick={() => {/* Lógica para ver jugadores */}}>
+                <GroupIcon className="icon" />
+              </button>
+
+              {/* Icono para salir de la sala */}
+              <button className="icon-button" onClick={salirSala}>
+                <ExitIcon className="icon" />
+              </button>
             </div>
           </div>
 
