@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './App.css';
 import io from 'socket.io-client';
 import logo from './img/Logo.png';
@@ -14,8 +15,9 @@ function App() {
   const [codigoSalaInput, setCodigoSalaInput] = useState('');
   const [nombre, setNombre] = useState('');
   const [error, setError] = useState('');
-  const [jugadores, setJugadores] = useState([]);
+  const [crucigrama, setCrucigrama] = useState(null);
   const [pestanaActiva, setPestanaActiva] = useState('palabras');
+  const [jugadores, setJugadores] = useState([]);
 
   useEffect(() => {
     socket.on('jugadoresActualizados', (jugadoresActualizados) => {
@@ -31,6 +33,15 @@ function App() {
       socket.off('connect_error');
     };
   }, []);
+
+  const generarCrucigrama = async () => {
+    try {
+      const response = await axios.get('/api/generar-crucigrama');
+      setCrucigrama(response.data);
+    } catch (error) {
+      console.error('Error al generar crucigrama:', error);
+    }
+  };
 
   const crearSala = () => {
     if (!nombre) {
@@ -139,7 +150,13 @@ function App() {
           {/* Contenedores principales */}
           <div className="main-content">
             <div className="crossword-container">
-              <p>Aquí se generará el crucigrama</p>
+              <button onClick={generarCrucigrama}>Generar Crucigrama</button>
+                {crucigrama && (
+                  <div>
+                    <h2>Crucigrama Generado</h2>
+                    <pre>{JSON.stringify(crucigrama, null, 2)}</pre>
+                  </div>
+                )}
             </div>
 
             <div className="tabs-container">

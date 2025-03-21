@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
+const { generarCrucigrama } = require('./crucigramas');
 
 const app = express();
 const server = http.createServer(app);
@@ -95,6 +96,15 @@ io.on('connection', (socket) => {
       }
     }
   });
+});
+
+app.get('/api/generar-crucigrama', async (req, res) => {
+  try {
+    const crucigrama = await generarCrucigrama();
+    res.json(crucigrama);
+  } catch (error) {
+    res.status(500).send('Error al generar crucigrama');
+  }
 });
 
 // Iniciar el servidor
