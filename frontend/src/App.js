@@ -18,6 +18,7 @@ function App() {
   const [crucigrama, setCrucigrama] = useState(null);
   const [pestanaActiva, setPestanaActiva] = useState('palabras');
   const [jugadores, setJugadores] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     socket.on('jugadoresActualizados', (jugadoresActualizados) => {
@@ -35,11 +36,14 @@ function App() {
   }, []);
 
   const generarCrucigrama = async () => {
+    setIsLoading(true); // Inicia el estado de carga
     try {
       const response = await axios.get('/api/generar-crucigrama');
       setCrucigrama(response.data);
     } catch (error) {
       console.error('Error al generar crucigrama:', error);
+    } finally {
+      setIsLoading(false); // Finaliza el estado de carga
     }
   };
 
@@ -150,13 +154,37 @@ function App() {
           {/* Contenedores principales */}
           <div className="main-content">
             <div className="crossword-container">
-              <button onClick={generarCrucigrama}>Generar Crucigrama</button>
-                {crucigrama && (
-                  <div>
-                    <h2>Crucigrama Generado</h2>
-                    <pre>{JSON.stringify(crucigrama, null, 2)}</pre>
+              <button onClick={generarCrucigrama} disabled={isLoading}>
+                {isLoading ? 'Generando...' : 'Generar Crucigrama'}
+              </button>
+              {isLoading && <p>Cargando crucigrama, por favor espera...</p>}
+              {crucigrama && (
+                <div>
+                  <h2>Crucigrama Generado</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${crucigrama.tablero[0].length}, 1fr)`, gap: '5px' }}>
+                    {crucigrama.tablero.map((fila, filaIndex) =>
+                      fila.map((celda, columnaIndex) => (
+                        celda && ( // Solo renderizar celdas no vacías
+                          <div
+                            key={`${filaIndex}-${columnaIndex}`}
+                            style={{
+                              width: '30px',
+                              height: '30px',
+                              border: '1px solid black',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#f0f0f0',
+                            }}
+                          >
+                            {celda}
+                          </div>
+                        )
+                      ))
+                    )}
                   </div>
-                )}
+                </div>
+              )}
             </div>
 
             <div className="tabs-container">
@@ -182,7 +210,16 @@ function App() {
               </div>
 
               <div className="tab-content">
-                {pestanaActiva === 'palabras' && <p>Aquí se mostrarán las palabras.</p>}
+                {pestanaActiva === 'palabras' && (
+                  <div>
+                    <h3>Definiciones</h3>
+                    {crucigrama && crucigrama.pistas.map((pista, index) => (
+                      <div key={index}>
+                        <strong>{index + 1}.</strong> {pista.definicion}
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {pestanaActiva === 'chat' && <p>Aquí estará el chat.</p>}
                 {pestanaActiva === 'estadisticas' && <p>Aquí se mostrarán las estadísticas.</p>}
               </div>
