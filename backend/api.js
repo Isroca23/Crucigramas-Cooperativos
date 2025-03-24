@@ -20,12 +20,7 @@ const obtenerPalabrasYDefiniciones = async () => {
           return null;
         }).filter(item => item !== null);
 
-        // Seleccionar un subconjunto aleatorio de palabras
-        const palabrasSeleccionadas = palabrasYDefiniciones
-          .sort(() => Math.random() - 0.5) // Mezclar aleatoriamente
-          .slice(0, 20); // Seleccionar las primeras 20 palabras
-
-        resolve(palabrasSeleccionadas);
+        resolve(palabrasYDefiniciones);
       } catch (e) {
         console.error('Error al procesar el archivo:', e);
         reject([]);

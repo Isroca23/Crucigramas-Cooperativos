@@ -6,57 +6,89 @@ const crearTablero = (filas, columnas) => {
   return tablero;
 };
 
-const colocarPalabraEnTablero = (tablero, palabra) => {
-  let colocada = false;
-  let intentos = 0;
-  const maxIntentos = 100;
+const colocarCasillasNegras = (tablero) => {
+  const totalCasillas = tablero.length * tablero[0].length;
+  const numCasillasNegras = Math.floor(Math.random() * 11) + 10; // Entre 10 y 20 casillas negras
 
-  while (!colocada && intentos < maxIntentos) {
+  let colocadas = 0;
+  while (colocadas < numCasillasNegras) {
     const fila = Math.floor(Math.random() * tablero.length);
     const columna = Math.floor(Math.random() * tablero[0].length);
-    const direccion = Math.random() > 0.5 ? 'horizontal' : 'vertical';
 
-    if (puedeColocarPalabra(tablero, palabra, fila, columna, direccion)) {
-      for (let i = 0; i < palabra.length; i++) {
-        if (direccion === 'horizontal') {
-          tablero[fila][columna + i] = palabra[i];
-          if (i === palabra.length - 1 && columna + i + 1 < tablero[0].length) {
-            tablero[fila][columna + i + 1] = '-'; // Agregar guión al final
-          }
-        } else {
-          tablero[fila + i][columna] = palabra[i];
-          if (i === palabra.length - 1 && fila + i + 1 < tablero.length) {
-            tablero[fila + i + 1][columna] = '-'; // Agregar guión al final
-          }
-        }
-      }
-      colocada = true;
+    if (tablero[fila][columna] === null && !tieneCasillasConsecutivas(tablero, fila, columna)) {
+      tablero[fila][columna] = 'X'; // Usar 'X' para casillas negras
+      colocadas++;
     }
-    intentos++;
-  }
-
-  if (!colocada) {
-    console.warn(`No se pudo colocar la palabra: ${palabra}`);
   }
 };
 
-const puedeColocarPalabra = (tablero, palabra, fila, columna, direccion) => {
-  if (direccion === 'horizontal') {
-    if (columna + palabra.length > tablero[0].length) return false;
-    for (let i = 0; i < palabra.length; i++) {
-      if (tablero[fila][columna + i] !== null && tablero[fila][columna + i] !== palabra[i]) {
-        return false;
-      }
-    }
-  } else { // dirección vertical
-    if (fila + palabra.length > tablero.length) return false;
-    for (let i = 0; i < palabra.length; i++) {
-      if (tablero[fila + i][columna] !== null && tablero[fila + i][columna] !== palabra[i]) {
-        return false;
-      }
+const tieneCasillasConsecutivas = (tablero, fila, columna) => {
+  const direcciones = [
+    [0, 1], [1, 0], [0, -1], [-1, 0]
+  ];
+
+  for (const [dx, dy] of direcciones) {
+    const nuevaFila = fila + dx;
+    const nuevaColumna = columna + dy;
+
+    if (
+      nuevaFila >= 0 && nuevaFila < tablero.length &&
+      nuevaColumna >= 0 && nuevaColumna < tablero[0].length &&
+      tablero[nuevaFila][nuevaColumna] === 'X'
+    ) {
+      return true;
     }
   }
-  return true;
+  return false;
 };
 
-module.exports = { crearTablero, colocarPalabraEnTablero, puedeColocarPalabra };
+const obtenerEspaciosDisponibles = (tablero) => {
+  const espacios = { horizontal: [], vertical: [] };
+
+  // Buscar espacios horizontales
+  for (let i = 0; i < tablero.length; i++) {
+    let espacio = [];
+    for (let j = 0; j < tablero[i].length; j++) {
+      if (tablero[i][j] === null) {
+        espacio.push([i, j]);
+      } else if (espacio.length > 1) {
+        espacios.horizontal.push(espacio);
+        espacio = [];
+      } else {
+        espacio = [];
+      }
+    }
+    if (espacio.length > 1) {
+      espacios.horizontal.push(espacio);
+    }
+  }
+
+  // Buscar espacios verticales
+  for (let j = 0; j < tablero[0].length; j++) {
+    let espacio = [];
+    for (let i = 0; i < tablero.length; i++) {
+      if (tablero[i][j] === null) {
+        espacio.push([i, j]);
+      } else if (espacio.length > 1) {
+        espacios.vertical.push(espacio);
+        espacio = [];
+      } else {
+        espacio = [];
+      }
+    }
+    if (espacio.length > 1) {
+      espacios.vertical.push(espacio);
+    }
+  }
+
+  return espacios;
+};
+
+const colocarPalabraEnEspacio = (tablero, palabra, espacio) => {
+  for (let i = 0; i < palabra.length; i++) {
+    const [fila, columna] = espacio[i];
+    tablero[fila][columna] = palabra[i];
+  }
+};
+
+module.exports = { crearTablero, colocarCasillasNegras, obtenerEspaciosDisponibles, colocarPalabraEnEspacio };

@@ -1,5 +1,5 @@
 const { obtenerPalabrasYDefiniciones } = require('./api');
-const { crearTablero, colocarPalabraEnTablero } = require('./tablero');
+const { crearTablero, colocarCasillasNegras, obtenerEspaciosDisponibles, colocarPalabraEnEspacio } = require('./tablero');
 
 const generarCrucigrama = async () => {
   console.log('Iniciando la generación del crucigrama...');
@@ -7,21 +7,47 @@ const generarCrucigrama = async () => {
   const palabrasYDefiniciones = await obtenerPalabrasYDefiniciones();
   console.log(`Se obtuvieron ${palabrasYDefiniciones.length} palabras y definiciones.`);
 
-  // Seleccionar un subconjunto aleatorio de palabras
-  const palabrasSeleccionadas = palabrasYDefiniciones
-    .sort(() => Math.random() - 0.5) // Mezclar aleatoriamente
-    .slice(0, 20); // Seleccionar las primeras 20 palabras
-
   const tablero = crearTablero(10, 10);
-  console.log('Tablero vacío creado.');
+  console.log('Tablero vacío de 10x10 creado.');
 
-  palabrasSeleccionadas.forEach(({ palabra }, index) => {
-    colocarPalabraEnTablero(tablero, palabra);
-    console.log(`Palabra ${index + 1}/${palabrasSeleccionadas.length} colocada: ${palabra}`);
-  });
+  colocarCasillasNegras(tablero);
+  console.log('Casillas negras colocadas en el tablero.');
 
-  console.log('Crucigrama generado exitosamente.');
-  return { tablero, pistas: palabrasSeleccionadas };
+  const espacios = obtenerEspaciosDisponibles(tablero);
+  console.log(`Espacios disponibles determinados: ${espacios.horizontal.length} horizontales y ${espacios.vertical.length} verticales.`);
+
+const pistas = [];
+let index = 0;
+
+while (espacios.horizontal.length > 0 || espacios.vertical.length > 0) {
+  let espacio;
+  if (index % 2 === 0) {
+    espacio = espacios.vertical.shift() || espacios.horizontal.shift();
+  } else {
+    espacio = espacios.horizontal.shift() || espacios.vertical.shift();
+  }
+  if (!espacio) continue;
+
+  const longitud = espacio.length;
+  const posiblesPalabras = palabrasYDefiniciones.filter(({ palabra }) => palabra.length === longitud);
+
+  if (posiblesPalabras.length > 0) {
+    const { palabra, definicion } = posiblesPalabras[Math.floor(Math.random() * posiblesPalabras.length)];
+    colocarPalabraEnEspacio(tablero, palabra, espacio);
+    pistas.push({ palabra, definicion });
+    palabrasYDefiniciones.splice(palabrasYDefiniciones.indexOf({ palabra, definicion }), 1);
+
+    const posicion = espacio[0][1] === espacio[1][1] ? `columna ${espacio[0][1]}` : `fila ${espacio[0][0]}`;
+    console.log(`Palabra "${palabra}" colocada en el espacio de longitud ${longitud} en la ${posicion}.`);
+  } else {
+    console.log(`No se encontraron palabras para el espacio de longitud ${longitud}.`);
+  }
+
+  index++;
+}
+
+console.log('Crucigrama generado exitosamente.');
+return { tablero, pistas };
 };
 
 module.exports = { generarCrucigrama };
