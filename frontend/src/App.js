@@ -7,28 +7,32 @@ import { ReactComponent as GroupAddIcon } from './img/GroupAddRounded.svg';
 import { ReactComponent as GroupIcon } from './img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from './img/ExitBold.svg';
 
+// Inicializar conexión con el servidor de socket
 const socket = io('http://localhost:5000');
 
 function App() {
-  const [screen, setScreen] = useState('initial');
-  const [codigoSala, setCodigoSala] = useState('');
-  const [codigoSalaInput, setCodigoSalaInput] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [error, setError] = useState('');
-  const [crucigrama, setCrucigrama] = useState(null);
-  const [pestanaActiva, setPestanaActiva] = useState('palabras');
-  const [jugadores, setJugadores] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [screen, setScreen] = useState('initial'); // Manejar la pantalla actual
+  const [codigoSala, setCodigoSala] = useState(''); // Almacenar el código de la sala
+  const [codigoSalaInput, setCodigoSalaInput] = useState(''); // Almacenar el input del código de sala
+  const [nombre, setNombre] = useState(''); // Almacenar el nombre del jugador
+  const [error, setError] = useState(''); // Almacenar mensajes de error
+  const [crucigrama, setCrucigrama] = useState(null); // Almacenar el crucigrama generado
+  const [pestanaActiva, setPestanaActiva] = useState('palabras'); // Manejar la pestaña activa
+  const [jugadores, setJugadores] = useState([]); // Almacenar la lista de jugadores
+  const [isLoading, setIsLoading] = useState(false); // Manejar el estado de carga
 
   useEffect(() => {
+    // Escuchar eventos de actualización de jugadores
     socket.on('jugadoresActualizados', (jugadoresActualizados) => {
       setJugadores(jugadoresActualizados);
     });
 
+    // Manejar errores de conexión
     socket.on('connect_error', () => {
       setError('Error de conexión con el servidor.');
     });
 
+    // Limpiar eventos al desmontar el componente
     return () => {
       socket.off('jugadoresActualizados');
       socket.off('connect_error');
@@ -36,20 +40,20 @@ function App() {
   }, []);
 
   const generarCrucigrama = async () => {
-    setIsLoading(true); // Inicia el estado de carga
+    setIsLoading(true); // Activar el estado de carga
     try {
-      const response = await axios.get('/api/generar-crucigrama');
-      setCrucigrama(response.data);
+      const response = await axios.get('/api/generar-crucigrama'); // Solicitar crucigrama al backend
+      setCrucigrama(response.data); // Almacenar el crucigrama recibido
     } catch (error) {
-      console.error('Error al generar crucigrama:', error);
+      console.error('Error al generar crucigrama:', error); // Manejar errores
     } finally {
-      setIsLoading(false); // Finaliza el estado de carga
+      setIsLoading(false); // Desactivar el estado de carga
     }
   };
 
   const crearSala = () => {
     if (!nombre) {
-      setError('Por favor, introduce tu nombre.');
+      setError('Por favor, introduce tu nombre.'); // Validar que el nombre no esté vacío
       return;
     }
 
