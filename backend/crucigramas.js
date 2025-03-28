@@ -1,6 +1,13 @@
 const { obtenerPalabrasYDefiniciones } = require('./api');
 const { crearTablero, colocarCasillasNegras, obtenerEspaciosDisponibles, colocarPalabraEnEspacio } = require('./tablero');
 
+// Función para renderizar el tablero, convirtiendo `null` en un espacio visual
+const renderizarTablero = (tablero) => {
+  return tablero.map(fila =>
+    fila.map(casilla => (casilla === null ? '#' : casilla)).join(' ')
+  ).join('\n');
+};
+
 const generarCrucigrama = async () => {
   console.log('Iniciando la generación del crucigrama...');
   
@@ -33,12 +40,20 @@ while (espacios.horizontal.length > 0 || espacios.vertical.length > 0) {
 
   if (posiblesPalabras.length > 0) {
     const { palabra, definicion } = posiblesPalabras[Math.floor(Math.random() * posiblesPalabras.length)];
-    colocarPalabraEnEspacio(tablero, palabra, espacio);
-    pistas.push({ palabra, definicion });
-    palabrasYDefiniciones.splice(palabrasYDefiniciones.indexOf({ palabra, definicion }), 1);
-
-    const posicion = espacio[0][1] === espacio[1][1] ? `columna ${espacio[0][1]}` : `fila ${espacio[0][0]}`;
-    console.log(`Palabra "${palabra}" colocada en el espacio de longitud ${longitud} en la ${posicion}.`);
+    const palabraColocada = colocarPalabraEnEspacio(tablero, palabra, espacio);
+  
+    if (palabraColocada) {
+      pistas.push({ palabra, definicion });
+      palabrasYDefiniciones.splice(palabrasYDefiniciones.indexOf({ palabra, definicion }), 1);
+  
+      const posicion = espacio[0][1] === espacio[1][1] ? `columna ${espacio[0][1]}` : `fila ${espacio[0][0]}`;
+      console.log(`Palabra "${palabra}" colocada en el espacio de longitud ${longitud} en la ${posicion}.`);
+    
+      console.log('Estado actual del tablero:');
+      console.table(renderizarTablero(tablero));
+    } else {
+      console.log(`El espacio no es válido para la palabra "${palabra}".`);
+    }
   } else {
     console.log(`No se encontraron palabras para el espacio de longitud ${longitud}.`);
   }

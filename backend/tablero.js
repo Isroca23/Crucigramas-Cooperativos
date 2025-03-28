@@ -1,3 +1,4 @@
+// Función para crear un tablero vacío con las dimensiones especificadas
 const crearTablero = (filas, columnas) => {
   const tablero = [];
   for (let i = 0; i < filas; i++) {
@@ -6,22 +7,20 @@ const crearTablero = (filas, columnas) => {
   return tablero;
 };
 
-const colocarCasillasNegras = (tablero) => {
-  const totalCasillas = tablero.length * tablero[0].length;
-  const numCasillasNegras = Math.floor(Math.random() * 11) + 10; // Entre 10 y 20 casillas negras
-
-  let colocadas = 0;
-  while (colocadas < numCasillasNegras) {
-    const fila = Math.floor(Math.random() * tablero.length);
-    const columna = Math.floor(Math.random() * tablero[0].length);
-
-    if (tablero[fila][columna] === null && !tieneCasillasConsecutivas(tablero, fila, columna)) {
-      tablero[fila][columna] = 'X'; // Usar 'X' para casillas negras
-      colocadas++;
+// Función para colocar casillas negras en el tablero de forma aleatoria
+const colocarCasillasNegras = (tablero, probabilidad = 0.2) => {
+  // La probabilidad determina qué porcentaje de casillas serán negras (por defecto 20%)
+  for (let i = 0; i < tablero.length; i++) {
+    for (let j = 0; j < tablero[i].length; j++) {
+      // Generar una casilla negra con la probabilidad especificada
+      if (Math.random() < probabilidad) {
+        tablero[i][j] = '#'; // Usar '#' para casillas negras
+      }
     }
   }
 };
 
+// Función auxiliar para verificar si una casilla negra generaría casillas consecutivas
 const tieneCasillasConsecutivas = (tablero, fila, columna) => {
   const direcciones = [
     [0, 1], [1, 0], [0, -1], [-1, 0]
@@ -31,10 +30,11 @@ const tieneCasillasConsecutivas = (tablero, fila, columna) => {
     const nuevaFila = fila + dx;
     const nuevaColumna = columna + dy;
 
+    // Verificar si la casilla adyacente está dentro de los límites y es null
     if (
       nuevaFila >= 0 && nuevaFila < tablero.length &&
       nuevaColumna >= 0 && nuevaColumna < tablero[0].length &&
-      tablero[nuevaFila][nuevaColumna] === 'X'
+      tablero[nuevaFila][nuevaColumna] === '#'
     ) {
       return true;
     }
@@ -85,10 +85,21 @@ const obtenerEspaciosDisponibles = (tablero) => {
 };
 
 const colocarPalabraEnEspacio = (tablero, palabra, espacio) => {
+  // Verificar si todas las casillas del espacio están vacías o coinciden con las letras de la palabra
+  for (let i = 0; i < palabra.length; i++) {
+    const [fila, columna] = espacio[i];
+    if (tablero[fila][columna] !== null && tablero[fila][columna] !== palabra[i]) {
+      return false; // El espacio no es válido
+    }
+  }
+
+  // Colocar la palabra en el espacio
   for (let i = 0; i < palabra.length; i++) {
     const [fila, columna] = espacio[i];
     tablero[fila][columna] = palabra[i];
   }
+
+  return true; // La palabra se colocó correctamente
 };
 
 module.exports = { crearTablero, colocarCasillasNegras, obtenerEspaciosDisponibles, colocarPalabraEnEspacio };
