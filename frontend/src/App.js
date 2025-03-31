@@ -165,25 +165,28 @@ function App() {
               {crucigrama && (
                 <div>
                   <h2>Crucigrama Generado</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${crucigrama.tablero[0].length}, 1fr)`, gap: '5px' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: `repeat(${crucigrama.tablero[0].length}, 1fr)`,
+                      gap: '5px',
+                    }}
+                  >
                     {crucigrama.tablero.map((fila, filaIndex) =>
-                      fila.map((celda, columnaIndex) => (
-                        celda && ( // Solo renderizar celdas no vacías
-                          <div
-                            key={`${filaIndex}-${columnaIndex}`}
-                            style={{
-                              width: '30px',
-                              height: '30px',
-                              border: '1px solid black',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: '#f0f0f0',
-                            }}
-                          >
-                            {celda}
-                          </div>
-                        )
+                      fila.map((casilla, columnaIndex) => (
+                        <div
+                          key={`${filaIndex}-${columnaIndex}`}
+                          style={{
+                            width: '30px',
+                            height: '30px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: casilla === '#' ? '#9F9890' : '#EDEDE9', // Sin fondo para casillas vacías
+                          }}
+                        >
+                          {casilla === '#' ? ' ' : casilla} {/* Mostrar vacío para casillas null */}
+                        </div>
                       ))
                     )}
                   </div>

@@ -18,6 +18,7 @@ const obtenerPalabrasYDefiniciones = async () => {
       try {
         // Parsear el contenido del archivo JSON
         const palabrasYDefiniciones = JSON.parse(data);
+        console.log('Datos enviados al frontend:', palabrasYDefiniciones);
         resolve(palabrasYDefiniciones);
       } catch (e) {
         // Si ocurre un error al procesar el archivo, lo registro y rechazo

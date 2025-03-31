@@ -2,45 +2,45 @@
 const crearTablero = (filas, columnas) => {
   const tablero = [];
   for (let i = 0; i < filas; i++) {
-    tablero.push(new Array(columnas).fill(null)); // Usar `null` para celdas vacías
+    tablero.push(new Array(columnas).fill(null)); // Usar null para casillas vacías
   }
   return tablero;
 };
 
-// Función para colocar casillas negras en el tablero de forma aleatoria
-const colocarCasillasNegras = (tablero, probabilidad = 0.2) => {
-  // La probabilidad determina qué porcentaje de casillas serán negras (por defecto 20%)
+// Función para colocar casillas null en el tablero de forma aleatoria
+const colocarCasillasNull = (tablero, probabilidad = 0.2) => {
+  // La probabilidad determina qué porcentaje de casillas serán null (por defecto 20%)
   for (let i = 0; i < tablero.length; i++) {
     for (let j = 0; j < tablero[i].length; j++) {
-      // Generar una casilla negra con la probabilidad especificada
+      // Generar una casilla null con la probabilidad especificada
       if (Math.random() < probabilidad) {
-        tablero[i][j] = '#'; // Usar '#' para casillas negras
+        tablero[i][j] = '#';
       }
     }
   }
 };
 
-// Función auxiliar para verificar si una casilla negra generaría casillas consecutivas
-const tieneCasillasConsecutivas = (tablero, fila, columna) => {
-  const direcciones = [
-    [0, 1], [1, 0], [0, -1], [-1, 0]
-  ];
+// Función auxiliar para verificar si una casilla null generaría casillas consecutivas
+// const tieneCasillasConsecutivas = (tablero, fila, columna) => {
+//   const direcciones = [
+//     [0, 1], [1, 0], [0, -1], [-1, 0]
+//   ];
 
-  for (const [dx, dy] of direcciones) {
-    const nuevaFila = fila + dx;
-    const nuevaColumna = columna + dy;
+//   for (const [dx, dy] of direcciones) {
+//     const nuevaFila = fila + dx;
+//     const nuevaColumna = columna + dy;
 
-    // Verificar si la casilla adyacente está dentro de los límites y es null
-    if (
-      nuevaFila >= 0 && nuevaFila < tablero.length &&
-      nuevaColumna >= 0 && nuevaColumna < tablero[0].length &&
-      tablero[nuevaFila][nuevaColumna] === '#'
-    ) {
-      return true;
-    }
-  }
-  return false;
-};
+//     // Verificar si la casilla adyacente está dentro de los límites y es null
+//     if (
+//       nuevaFila >= 0 && nuevaFila < tablero.length &&
+//       nuevaColumna >= 0 && nuevaColumna < tablero[0].length &&
+//       tablero[nuevaFila][nuevaColumna] === ' '
+//     ) {
+//       return true;
+//     }
+//   }
+//   return false;
+// };
 
 const obtenerEspaciosDisponibles = (tablero) => {
   const espacios = { horizontal: [], vertical: [] };
@@ -102,4 +102,4 @@ const colocarPalabraEnEspacio = (tablero, palabra, espacio) => {
   return true; // La palabra se colocó correctamente
 };
 
-module.exports = { crearTablero, colocarCasillasNegras, obtenerEspaciosDisponibles, colocarPalabraEnEspacio };
+module.exports = { crearTablero, colocarCasillasNull, obtenerEspaciosDisponibles, colocarPalabraEnEspacio };
