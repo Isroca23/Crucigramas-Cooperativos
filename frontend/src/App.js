@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './App.css';
 import io from 'socket.io-client';
 import logo from './img/Logo.png';
@@ -20,6 +19,8 @@ function App() {
   const [pestanaActiva, setPestanaActiva] = useState('palabras'); // Manejar la pestaña activa
   const [jugadores, setJugadores] = useState([]); // Almacenar la lista de jugadores
   const [isLoading, setIsLoading] = useState(false); // Manejar el estado de carga
+  const [casillaSeleccionada, setCasillaSeleccionada] = useState({ fila: 0, columna: 0 }); // Casilla seleccionada
+  const [orientacion, setOrientacion] = useState('horizontal'); // Orientación de la palabra seleccionada
 
   useEffect(() => {
     // Escuchar eventos de actualización de jugadores
@@ -53,7 +54,7 @@ function App() {
         setError(response.error);
       } else {
         setCrucigrama(response.crucigrama);
-    }
+      }
     });
   };
 
@@ -110,8 +111,87 @@ function App() {
 
   const esAnfitrion = jugadores.length > 0 && jugadores[0].id === socket.id;
 
+  // Función para verificar si hay una palabra horizontal en una casilla
+  const tienePalabraHorizontal = (fila, columna, tablero) => {
+    let inicio = columna;
+    while (inicio > 0 && tablero[fila][inicio - 1] !== '#') inicio--;
+    let fin = columna;
+    while (fin < tablero[fila].length && tablero[fila][fin] !== '#') fin++;
+    return fin - inicio > 1; // Hay una palabra si la longitud es mayor a 1
+  };
+
+  // Función para verificar si hay una palabra vertical en una casilla
+  const tienePalabraVertical = (fila, columna, tablero) => {
+    let inicio = fila;
+    while (inicio > 0 && tablero[inicio - 1][columna] !== '#') inicio--;
+    let fin = fila;
+    while (fin < tablero.length && tablero[fin][columna] !== '#') fin++;
+    return fin - inicio > 1; // Hay una palabra si la longitud es mayor a 1
+  };
+
+  const handleCasillaClick = (fila, columna) => {
+    const casilla = crucigrama.tablero[fila][columna];
+    if (casilla === '#') return; // No permitir seleccionar casillas negras
+
+    const horizontal = tienePalabraHorizontal(fila, columna, crucigrama.tablero);
+    const vertical = tienePalabraVertical(fila, columna, crucigrama.tablero);
+
+    if (casillaSeleccionada.fila === fila && casillaSeleccionada.columna === columna) {
+      // Cambiar orientación solo si hay palabras en ambas orientaciones
+      if (horizontal && vertical) {
+        setOrientacion((prev) => (prev === 'horizontal' ? 'vertical' : 'horizontal'));
+      }
+    } else {
+      // Seleccionar nueva casilla y establecer orientación por defecto
+      setCasillaSeleccionada({ fila, columna });
+      setOrientacion(horizontal ? 'horizontal' : 'vertical');
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault(); // Evitar el comportamiento predeterminado del tab
+      const { fila, columna } = casillaSeleccionada;
+      const horizontal = tienePalabraHorizontal(fila, columna, crucigrama.tablero);
+      const vertical = tienePalabraVertical(fila, columna, crucigrama.tablero);
+      if (horizontal && vertical) {
+        setOrientacion((prev) => (prev === 'horizontal' ? 'vertical' : 'horizontal'));
+      }
+    }
+  };
+
+  const obtenerPalabraSeleccionada = () => {
+    if (!crucigrama) return [];
+    const { fila, columna } = casillaSeleccionada;
+    let palabra = [];
+    if (orientacion === 'horizontal') {
+      // Obtener palabra horizontal
+      let inicio = columna;
+      while (inicio > 0 && crucigrama.tablero[fila][inicio - 1] !== '#') inicio--;
+      let fin = columna;
+      while (fin < crucigrama.tablero[fila].length && crucigrama.tablero[fila][fin] !== '#') fin++;
+      palabra = crucigrama.tablero[fila].slice(inicio, fin).map((_, index) => ({
+        fila,
+        columna: inicio + index,
+      }));
+    } else {
+      // Obtener palabra vertical
+      let inicio = fila;
+      while (inicio > 0 && crucigrama.tablero[inicio - 1][columna] !== '#') inicio--;
+      let fin = fila;
+      while (fin < crucigrama.tablero.length && crucigrama.tablero[fin][columna] !== '#') fin++;
+      palabra = crucigrama.tablero.slice(inicio, fin).map((_, index) => ({
+        fila: inicio + index,
+        columna,
+      }));
+    }
+    return palabra;
+  };
+
+  const palabraSeleccionada = obtenerPalabraSeleccionada();
+
   return (
-    <div className="App">
+    <div className="App" onKeyDown={handleKeyDown} tabIndex={0}>
       {screen === 'initial' && (
         <div className="initial-screen">
           <input
@@ -134,7 +214,6 @@ function App() {
 
       {screen === 'sala' && (
         <>
-          {/* Header */}
           <div className="header-bar">
             <div className="header-left">
               <div className="logo-circle"></div>
@@ -177,17 +256,23 @@ function App() {
               )}
               {isLoading && <p>Cargando crucigrama, por favor espera...</p>}
               {crucigrama && (
-                <div>
-                  <h2>Crucigrama Generado</h2>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: `repeat(${crucigrama.tablero[0].length}, 1fr)`,
-                      gap: '5px',
-                    }}
-                  >
-                    {crucigrama.tablero.map((fila, filaIndex) =>
-                      fila.map((casilla, columnaIndex) => (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${crucigrama.tablero[0].length}, 1fr)`,
+                    gap: '5px',
+                  }}
+                >
+                  {crucigrama.tablero.map((fila, filaIndex) =>
+                    fila.map((casilla, columnaIndex) => {
+                      const esSeleccionada =
+                        casillaSeleccionada.fila === filaIndex &&
+                        casillaSeleccionada.columna === columnaIndex;
+                      const esParteDePalabra = palabraSeleccionada.some(
+                        (p) => p.fila === filaIndex && p.columna === columnaIndex
+                      );
+
+                      return (
                         <div
                           key={`${filaIndex}-${columnaIndex}`}
                           style={{
@@ -196,14 +281,24 @@ function App() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: casilla === '#' ? '#9F9890' : '#EDEDE9', // Sin fondo para casillas vacías
+                            backgroundColor: esSeleccionada
+                              ? '#D5BDAF'
+                              : esParteDePalabra
+                              ? '#E3D5CA'
+                              : casilla === '#'
+                              ? '#9F9890'
+                              : '#EDEDE9',
+                              border: esSeleccionada ? '3px solid #D5BDAF' : 'none',
+                              transform: esSeleccionada ? 'scale(1.1)' : 'none',
+                              transition: 'transform 0.1s',
                           }}
+                          onClick={() => handleCasillaClick(filaIndex, columnaIndex)}
                         >
                           {casilla === '#' ? ' ' : casilla}
                         </div>
-                      ))
-                    )}
-                  </div>
+                      );
+                    })
+                  )}
                 </div>
               )}
             </div>
