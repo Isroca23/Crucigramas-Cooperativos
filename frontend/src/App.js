@@ -27,6 +27,11 @@ function App() {
       setJugadores(jugadoresActualizados);
     });
 
+    // Escuchar evento de crucigrama generado
+    socket.on('crucigramaGenerado', (crucigramaGenerado) => {
+      setCrucigrama(crucigramaGenerado);
+    });
+
     // Manejar errores de conexión
     socket.on('connect_error', () => {
       setError('Error de conexión con el servidor.');
@@ -35,25 +40,26 @@ function App() {
     // Limpiar eventos al desmontar el componente
     return () => {
       socket.off('jugadoresActualizados');
+      socket.off('crucigramaGenerado');
       socket.off('connect_error');
     };
   }, []);
 
-  const generarCrucigrama = async () => {
+  const generarCrucigrama = () => {
     setIsLoading(true); // Activar el estado de carga
-    try {
-      const response = await axios.get('/api/generar-crucigrama'); // Solicitar crucigrama al backend
-      setCrucigrama(response.data); // Almacenar el crucigrama recibido
-    } catch (error) {
-      console.error('Error al generar crucigrama:', error); // Manejar errores
-    } finally {
+    socket.emit('generarCrucigrama', { codigoSala }, (response) => {
       setIsLoading(false); // Desactivar el estado de carga
+      if (response.error) {
+        setError(response.error);
+      } else {
+        setCrucigrama(response.crucigrama);
     }
+    });
   };
 
   const crearSala = () => {
     if (!nombre) {
-      setError('Por favor, introduce tu nombre.'); // Validar que el nombre no esté vacío
+      setError('Por favor, introduce tu nombre.');
       return;
     }
 
@@ -63,6 +69,7 @@ function App() {
       } else {
         setCodigoSala(response.codigoSala);
         setJugadores([response.jugador]);
+        setCrucigrama(response.crucigrama);
         setScreen('sala');
       }
     });
@@ -83,6 +90,8 @@ function App() {
         setError(response.error);
       } else {
         setCodigoSala(codigoSalaInput);
+        setJugadores((prev) => [...prev, response.jugador]);
+        setCrucigrama(response.crucigrama);
         setScreen('sala');
       }
     });
@@ -96,7 +105,10 @@ function App() {
     setNombre('');
     setError('');
     setJugadores([]);
+    setCrucigrama(null);
   };
+
+  const esAnfitrion = jugadores.length > 0 && jugadores[0].id === socket.id;
 
   return (
     <div className="App">
@@ -158,9 +170,11 @@ function App() {
           {/* Contenedores principales */}
           <div className="main-content">
             <div className="crossword-container">
-              <button onClick={generarCrucigrama} disabled={isLoading}>
-                {isLoading ? 'Generando...' : 'Generar Crucigrama'}
-              </button>
+              {esAnfitrion && (
+                <button onClick={generarCrucigrama} disabled={isLoading}>
+                  {isLoading ? 'Generando...' : 'Generar Crucigrama'}
+                </button>
+              )}
               {isLoading && <p>Cargando crucigrama, por favor espera...</p>}
               {crucigrama && (
                 <div>
@@ -185,7 +199,7 @@ function App() {
                             backgroundColor: casilla === '#' ? '#9F9890' : '#EDEDE9', // Sin fondo para casillas vacías
                           }}
                         >
-                          {casilla === '#' ? ' ' : casilla} {/* Mostrar vacío para casillas null */}
+                          {casilla === '#' ? ' ' : casilla}
                         </div>
                       ))
                     )}

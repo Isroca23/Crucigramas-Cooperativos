@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
       }
   
     const jugador = { id: socket.id, nombre };
-    salas[codigoSala] = { jugadores: [jugador] };
+    salas[codigoSala] = { jugadores: [jugador], crucigrama: null };
 
     socket.join(codigoSala);
     console.log(`Sala creada: ${codigoSala}`);
@@ -55,24 +55,51 @@ io.on('connection', (socket) => {
     console.log(`Jugador ${socket.id} (${nombre}) se unió a la sala ${codigoSala}`);
     io.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
 
-    callback({ jugador });
+    callback({ jugador, crucigrama: salas[codigoSala].crucigrama });
+  });
+
+  // Generar crucigrama (solo el anfitrión puede hacerlo)
+  socket.on('generarCrucigrama', async ({ codigoSala }, callback) => {
+    if (!salas[codigoSala]) {
+      callback({ error: 'La sala no existe.' });
+      return;
+    }
+
+    const sala = salas[codigoSala];
+    const anfitrion = sala.jugadores[0]; // El anfitrión es el primer jugador en la lista
+
+    if (socket.id !== anfitrion.id) {
+      callback({ error: 'Solo el anfitrión puede generar el crucigrama.' });
+      return;
+    }
+
+    try {
+      const crucigrama = await generarCrucigrama();
+      sala.crucigrama = crucigrama;
+
+      io.to(codigoSala).emit('crucigramaGenerado', crucigrama); // Notificar a todos los jugadores
+      callback({ crucigrama });
+    } catch (error) {
+      console.error('Error al generar crucigrama:', error);
+      callback({ error: 'Error al generar el crucigrama.' });
+    }
   });
 
   // Salir de una sala
   socket.on('salirSala', ({ codigoSala, nombre }) => {
     if (!salas[codigoSala]) return;
-
+  
     salas[codigoSala].jugadores = salas[codigoSala].jugadores.filter(
       (jugador) => jugador.id !== socket.id
     );
-
+  
     console.log(`Jugador ${socket.id} (${nombre}) salió de la sala ${codigoSala}`);
     io.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
-
-      if (salas[codigoSala].jugadores.length === 0) {
-        delete salas[codigoSala];
-        console.log(`Sala ${codigoSala} eliminada porque no tiene jugadores.`);
-      }
+  
+    if (salas[codigoSala].jugadores.length === 0) {
+      delete salas[codigoSala]; // Eliminar la sala y su crucigrama
+      console.log(`Sala ${codigoSala} eliminada porque no tiene jugadores.`);
+    }
   });
 
   // Desconexión del jugador
@@ -96,15 +123,6 @@ io.on('connection', (socket) => {
       }
     }
   });
-});
-
-app.get('/api/generar-crucigrama', async (req, res) => {
-  try {
-    const crucigrama = await generarCrucigrama();
-    res.json(crucigrama);
-  } catch (error) {
-    res.status(500).send('Error al generar crucigrama');
-  }
 });
 
 // Iniciar el servidor
