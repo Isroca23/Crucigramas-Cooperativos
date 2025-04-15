@@ -12,9 +12,12 @@ const generarCrucigrama = async () => {
   const palabrasYDefiniciones = await obtenerPalabrasYDefiniciones();
   console.log(`Se obtuvieron ${palabrasYDefiniciones.length} palabras y definiciones.`);
 
-  // Ordenar palabras aleatoriamente
-  let palabras = palabrasYDefiniciones.map(({ palabra }) => palabra).sort(() => Math.random() - 0.5);
-  const definiciones = palabrasYDefiniciones.map(({ definicion }) => definicion);
+  // Mezclar palabras y definiciones juntas
+  const palabrasYDefinicionesMezcladas = palabrasYDefiniciones.sort(() => Math.random() - 0.5);
+
+  // Separar palabras y definiciones después de mezclar
+  const palabras = palabrasYDefinicionesMezcladas.map(({ palabra }) => palabra);
+  const definiciones = palabrasYDefinicionesMezcladas.map(({ definicion }) => definicion);
 
   const pistas = [];
 
@@ -106,7 +109,7 @@ const generarCrucigrama = async () => {
               );
               pistas.push({
                 palabra,
-                definicion: definiciones[i],
+                definiciones: palabrasYDefinicionesMezcladas[i].definiciones,
                 orientacion: esHorizontal ? 'horizontal' : 'vertical',
                 [esHorizontal ? 'fila' : 'columna']: actual,
               });

@@ -99,7 +99,7 @@ body {
 
 /* Crucigrama */
 .crossword-container {
-  flex: 3;
+  flex: 0;
   background-color: var(--color-dark);
   border-radius: 8px;
   padding: 1rem;
@@ -205,4 +205,15 @@ body {
 
 .casilla.palabra-seleccionada {
   background-color: var(--color-soft);
+}
+
+.tab-content ol {
+  list-style-type: disc;
+  color: var(--color-dark);
+  font-size: 1rem;
+}
+
+.tab-content ol li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
 }

@@ -190,6 +190,29 @@ function App() {
 
   const palabraSeleccionada = obtenerPalabraSeleccionada();
 
+  const obtenerDefinicionSeleccionada = () => {
+    if (!crucigrama || palabraSeleccionada.length === 0) return null;
+  
+    // Convertir la palabra seleccionada en un string
+    const palabraActual = palabraSeleccionada
+      .map(({ fila, columna }) => crucigrama.tablero[fila][columna])
+      .join('');
+  
+    console.log('Palabra seleccionada:', palabraActual);
+    console.log('Pistas disponibles:', crucigrama.pistas);
+  
+    // Buscar la definición correspondiente
+    const pista = crucigrama.pistas.find((p) => p.palabra.toLowerCase() === palabraActual.toLowerCase());
+  
+    if (!pista) {
+      console.warn(`No se encontró una pista para la palabra: ${palabraActual}`);
+    }
+  
+    return pista ? pista.definiciones : null;
+  };
+  
+  const definicionSeleccionada = obtenerDefinicionSeleccionada();
+
   return (
     <div className="App" onKeyDown={handleKeyDown} tabIndex={0}>
       {screen === 'initial' && (
@@ -328,12 +351,20 @@ function App() {
               <div className="tab-content">
                 {pestanaActiva === 'palabras' && (
                   <div>
-                    <h3>Definiciones</h3>
-                    {crucigrama && crucigrama.pistas.map((pista, index) => (
-                      <div key={index}>
-                        <strong>{index + 1}.</strong> {pista.definicion}
+                    {definicionSeleccionada ? (
+                      <div>
+                        <strong>Definiciones:</strong>
+                        <ol style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                          {definicionSeleccionada.map((definicion, index) => (
+                            <li key={index} style={{ marginBottom: '0.5rem' }}>
+                              {definicion}
+                            </li>
+                          ))}
+                        </ol>
                       </div>
-                    ))}
+                    ) : (
+                      <p>Selecciona una palabra para ver sus definiciones.</p>
+                    )}
                   </div>
                 )}
                 {pestanaActiva === 'chat' && <p>Aquí estará el chat.</p>}
