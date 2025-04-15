@@ -12,12 +12,8 @@ const generarCrucigrama = async () => {
   const palabrasYDefiniciones = await obtenerPalabrasYDefiniciones();
   console.log(`Se obtuvieron ${palabrasYDefiniciones.length} palabras y definiciones.`);
 
-  // Mezclar palabras y definiciones juntas
-  const palabrasYDefinicionesMezcladas = palabrasYDefiniciones.sort(() => Math.random() - 0.5);
-
-  // Separar palabras y definiciones después de mezclar
-  const palabras = palabrasYDefinicionesMezcladas.map(({ palabra }) => palabra);
-  const definiciones = palabrasYDefinicionesMezcladas.map(({ definicion }) => definicion);
+  // Generar un array de índices aleatorios
+  const indicesAleatorios = Array.from({ length: palabrasYDefiniciones.length }, (_, i) => i).sort(() => Math.random() - 0.5);
 
   const pistas = [];
 
@@ -76,9 +72,10 @@ const generarCrucigrama = async () => {
   // Función genérica para colocar palabras en una dirección (horizontal o vertical)
   const colocarPalabras = (esHorizontal, inicio, limite, puedeColocar, colocarPalabra) => {
     let actual = inicio;
-    while (actual < limite && palabras.length > 0) {
-      for (let i = 0; i < palabras.length; i++) {
-        const palabra = palabras[i];
+    while (actual < limite && indicesAleatorios.length > 0) {
+      for (let i = 0; i < indicesAleatorios.length; i++) {
+        const indice = indicesAleatorios[i];
+        const { palabra, definiciones } = palabrasYDefiniciones[indice];
         const maxLongitud = esHorizontal ? tablero[0].length : tablero.length;
 
         if (palabra.length <= maxLongitud) {
@@ -109,14 +106,13 @@ const generarCrucigrama = async () => {
               );
               pistas.push({
                 palabra,
-                definiciones: palabrasYDefinicionesMezcladas[i].definiciones,
+                definiciones,
                 orientacion: esHorizontal ? 'horizontal' : 'vertical',
                 [esHorizontal ? 'fila' : 'columna']: actual,
               });
 
-              // Eliminar la palabra para que no se vuelva a usar
-              palabras.splice(i, 1);
-              definiciones.splice(i, 1);
+              // Eliminar el índice para que no se vuelva a usar
+              indicesAleatorios.splice(i, 1);
               i--;
               break;
             }

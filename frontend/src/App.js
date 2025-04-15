@@ -149,15 +149,79 @@ function App() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
+    const { fila, columna } = casillaSeleccionada;
+  
+    const seleccionarNuevaPalabra = (nuevaFila, nuevaColumna, nuevaOrientacion) => {
+      setCasillaSeleccionada({ fila: nuevaFila, columna: nuevaColumna });
+      setOrientacion(nuevaOrientacion);
+    };
+  
+    const intentarSeleccionarPalabra = (fila, columna) => {
+      const horizontal = tienePalabraHorizontal(fila, columna, crucigrama.tablero);
+      const vertical = tienePalabraVertical(fila, columna, crucigrama.tablero);
+  
+      if (orientacion === 'vertical' && vertical) {
+        setOrientacion('vertical');
+      } else if (orientacion === 'horizontal' && horizontal) {
+        setOrientacion('horizontal');
+      } else if (vertical) {
+        setOrientacion('vertical');
+      } else if (horizontal) {
+        setOrientacion('horizontal');
+      }
+    };
+  
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      let nuevaFila = fila - 1;
+      while (nuevaFila >= 0 && crucigrama.tablero[nuevaFila][columna] === '#') {
+        nuevaFila--;
+      }
+      if (nuevaFila >= 0) {
+        seleccionarNuevaPalabra(nuevaFila, columna, 'vertical');
+        intentarSeleccionarPalabra(nuevaFila, columna);
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      let nuevaFila = fila + 1;
+      while (nuevaFila < crucigrama.tablero.length && crucigrama.tablero[nuevaFila][columna] === '#') {
+        nuevaFila++;
+      }
+      if (nuevaFila < crucigrama.tablero.length) {
+        seleccionarNuevaPalabra(nuevaFila, columna, 'vertical');
+        intentarSeleccionarPalabra(nuevaFila, columna);
+      }
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      let nuevaColumna = columna - 1;
+      while (nuevaColumna >= 0 && crucigrama.tablero[fila][nuevaColumna] === '#') {
+        nuevaColumna--;
+      }
+      if (nuevaColumna >= 0) {
+        seleccionarNuevaPalabra(fila, nuevaColumna, 'horizontal');
+        intentarSeleccionarPalabra(fila, nuevaColumna);
+      }
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      let nuevaColumna = columna + 1;
+      while (nuevaColumna < crucigrama.tablero[fila].length && crucigrama.tablero[fila][nuevaColumna] === '#') {
+        nuevaColumna++;
+      }
+      if (nuevaColumna < crucigrama.tablero[fila].length) {
+        seleccionarNuevaPalabra(fila, nuevaColumna, 'horizontal');
+        intentarSeleccionarPalabra(fila, nuevaColumna);
+      }
+    } else if (e.key === 'Tab') {
       e.preventDefault(); // Evitar el comportamiento predeterminado del tab
-      const { fila, columna } = casillaSeleccionada;
       const horizontal = tienePalabraHorizontal(fila, columna, crucigrama.tablero);
       const vertical = tienePalabraVertical(fila, columna, crucigrama.tablero);
       if (horizontal && vertical) {
         setOrientacion((prev) => (prev === 'horizontal' ? 'vertical' : 'horizontal'));
       }
     }
+  
+    // Actualizar la palabra seleccionada después de cambiar la casilla
+    obtenerPalabraSeleccionada();
   };
 
   const obtenerPalabraSeleccionada = () => {
@@ -196,13 +260,11 @@ function App() {
     // Convertir la palabra seleccionada en un string
     const palabraActual = palabraSeleccionada
       .map(({ fila, columna }) => crucigrama.tablero[fila][columna])
-      .join('');
-  
-    console.log('Palabra seleccionada:', palabraActual);
-    console.log('Pistas disponibles:', crucigrama.pistas);
+      .join('')
+      .toLowerCase();
   
     // Buscar la definición correspondiente
-    const pista = crucigrama.pistas.find((p) => p.palabra.toLowerCase() === palabraActual.toLowerCase());
+    const pista = crucigrama.pistas.find((p) => p.palabra.toLowerCase() === palabraActual);
   
     if (!pista) {
       console.warn(`No se encontró una pista para la palabra: ${palabraActual}`);
