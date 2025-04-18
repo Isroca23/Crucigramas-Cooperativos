@@ -21,6 +21,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false); // Manejar el estado de carga
   const [casillaSeleccionada, setCasillaSeleccionada] = useState({ fila: 0, columna: 0 }); // Casilla seleccionada
   const [orientacion, setOrientacion] = useState('horizontal'); // Orientación de la palabra seleccionada
+  const [showCopiedIcon, setShowCopiedIcon] = useState(false); // Estado para mostrar el ícono
 
   useEffect(() => {
     // Escuchar eventos de actualización de jugadores
@@ -224,6 +225,12 @@ function App() {
     obtenerPalabraSeleccionada();
   };
 
+  const copiarCodigoSala = () => {
+    navigator.clipboard.writeText(codigoSala);
+    setShowCopiedIcon(true); // Mostrar el ícono
+    setTimeout(() => setShowCopiedIcon(false), 2000); // Ocultar el ícono después de 2 segundos
+  };
+
   const obtenerPalabraSeleccionada = () => {
     if (!crucigrama) return [];
     const { fila, columna } = casillaSeleccionada;
@@ -327,8 +334,13 @@ function App() {
 
           {/* Sub-header */}
           <div className="sub-header">
-            <span>Jugador: <strong>{nombre}</strong></span>
-            <span>ID Sala: <strong>{codigoSala}</strong></span>
+            <span><strong>Jugador:</strong> {nombre}</span>
+            <span
+              onClick={copiarCodigoSala}
+              style={{ cursor: 'pointer' }}
+            >
+              <strong>ID Sala:</strong> {codigoSala}
+            </span>
           </div>
 
           {/* Contenedores principales */}
