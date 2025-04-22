@@ -22,8 +22,17 @@ function App() {
   const [casillaSeleccionada, setCasillaSeleccionada] = useState({ fila: 0, columna: 0 }); // Casilla seleccionada
   const [orientacion, setOrientacion] = useState('horizontal'); // Orientación de la palabra seleccionada
   const [showCopiedIcon, setShowCopiedIcon] = useState(false); // Estado para mostrar el ícono
+  const [crucigramaVisible, setCrucigramaVisible] = useState(null); // Crucigrama visible para el usuario
 
   useEffect(() => {
+    if (crucigrama) {
+      // Crear una copia del crucigrama con casillas vacías
+      const crucigramaVacio = crucigrama.tablero.map((fila) =>
+        fila.map((casilla) => (casilla === '#' ? '#' : ''))
+      );
+      setCrucigramaVisible(crucigramaVacio);
+    }
+    
     // Escuchar eventos de actualización de jugadores
     socket.on('jugadoresActualizados', (jugadoresActualizados) => {
       setJugadores(jugadoresActualizados);
@@ -45,7 +54,7 @@ function App() {
       socket.off('crucigramaGenerado');
       socket.off('connect_error');
     };
-  }, []);
+  }, [crucigrama]);
 
   const generarCrucigrama = () => {
     setIsLoading(true); // Activar el estado de carga
@@ -225,6 +234,44 @@ function App() {
     obtenerPalabraSeleccionada();
   };
 
+  const verificarCasilla = () => {
+    const { fila, columna } = casillaSeleccionada;
+    const letraCorrecta = crucigrama.tablero[fila][columna];
+    if (crucigramaVisible[fila][columna] === letraCorrecta) {
+      alert('¡La casilla es correcta!');
+    } else {
+      alert('La casilla es incorrecta.');
+    }
+  };
+
+  const verificarPalabra = () => {
+    const palabraActual = palabraSeleccionada
+      .map(({ fila, columna }) => crucigramaVisible[fila][columna])
+      .join('');
+    const palabraCorrecta = palabraSeleccionada
+      .map(({ fila, columna }) => crucigrama.tablero[fila][columna])
+      .join('');
+    if (palabraActual === palabraCorrecta) {
+      alert('¡La palabra es correcta!');
+    } else {
+      alert('La palabra es incorrecta.');
+    }
+  };
+
+  const verificarTablero = () => {
+    const esCorrecto = crucigramaVisible.every((fila, filaIndex) =>
+      fila.every(
+        (casilla, columnaIndex) =>
+          casilla === crucigrama.tablero[filaIndex][columnaIndex]
+      )
+    );
+    if (esCorrecto) {
+      alert('¡El tablero completo es correcto!');
+    } else {
+      alert('El tablero tiene errores.');
+    }
+  };
+
   const copiarCodigoSala = () => {
     navigator.clipboard.writeText(codigoSala);
     setShowCopiedIcon(true); // Mostrar el ícono
@@ -351,16 +398,20 @@ function App() {
                   {isLoading ? 'Generando...' : 'Generar Crucigrama'}
                 </button>
               )}
+              {/* Botones de verificación */}
+              <button onClick={verificarCasilla}>Verificar Casilla</button>
+              <button onClick={verificarPalabra}>Verificar Palabra</button>
+              <button onClick={verificarTablero}>Verificar Tablero</button>
               {isLoading && <p>Cargando crucigrama, por favor espera...</p>}
-              {crucigrama && (
+              {crucigramaVisible && (
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: `repeat(${crucigrama.tablero[0].length}, 1fr)`,
+                    gridTemplateColumns: `repeat(${crucigramaVisible[0].length}, 1fr)`,
                     gap: '5px',
                   }}
                 >
-                  {crucigrama.tablero.map((fila, filaIndex) =>
+                  {crucigramaVisible.map((fila, filaIndex) =>
                     fila.map((casilla, columnaIndex) => {
                       const esSeleccionada =
                         casillaSeleccionada.fila === filaIndex &&
