@@ -48,11 +48,21 @@ function App() {
       setError('Error de conexión con el servidor.');
     });
 
+    // Escuchar actualizaciones de casillas
+    socket.on('casillaActualizada', ({ fila, columna, letra }) => {
+      setCrucigramaVisible((prevCrucigrama) => {
+        const nuevoCrucigrama = [...prevCrucigrama];
+        nuevoCrucigrama[fila][columna] = letra;
+        return nuevoCrucigrama;
+      });
+    });
+
     // Limpiar eventos al desmontar el componente
     return () => {
       socket.off('jugadoresActualizados');
       socket.off('crucigramaGenerado');
       socket.off('connect_error');
+      socket.off('casillaActualizada');
     };
   }, [crucigrama]);
 
@@ -426,7 +436,11 @@ function App() {
                           style={{
                             width: '30px',
                             height: '30px',
+                            fontSize: '1rem',
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
                             display: 'flex',
+                            textAlign: 'center',
                             alignItems: 'center',
                             justifyContent: 'center',
                             backgroundColor: esSeleccionada
@@ -439,10 +453,119 @@ function App() {
                               border: esSeleccionada ? '3px solid #D5BDAF' : 'none',
                               transform: esSeleccionada ? 'scale(1.1)' : 'none',
                               transition: 'transform 0.1s',
+                              pointerEvents: casilla === '#' ? 'none' : 'auto',
+                              position: 'relative',
                           }}
                           onClick={() => handleCasillaClick(filaIndex, columnaIndex)}
                         >
-                          {casilla === '#' ? ' ' : casilla}
+                          {esSeleccionada ? (
+                            <input
+                              type="text"
+                              maxLength="1"
+                              value={casilla === '#' ? '' : casilla}
+                              onChange={(e) => {
+                                const letra = e.target.value.toUpperCase();
+                                const nuevoCrucigrama = [...crucigramaVisible];
+                              
+                                if (/^[A-Z]?$/.test(letra)) {
+                                  // Actualizar el estado local inmediatamente
+                                  nuevoCrucigrama[filaIndex][columnaIndex] = letra || '';
+                                  setCrucigramaVisible(nuevoCrucigrama);
+                              
+                                  // Emitir el cambio al servidor
+                                  socket.emit('actualizarCasilla', {
+                                    codigoSala,
+                                    fila: filaIndex,
+                                    columna: columnaIndex,
+                                    letra,
+                                  });
+                              
+                                  // Mover a la siguiente casilla al introducir una letra
+                                  if (letra) {
+                                    if (orientacion === 'horizontal') {
+                                      let nuevaColumna = columnaIndex + 1;
+                                      while (
+                                        nuevaColumna < crucigrama.tablero[filaIndex].length &&
+                                        crucigrama.tablero[filaIndex][nuevaColumna] === '#'
+                                      ) {
+                                        nuevaColumna++;
+                                      }
+                                      if (nuevaColumna < crucigrama.tablero[filaIndex].length) {
+                                        setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
+                                      }
+                                    } else {
+                                      let nuevaFila = filaIndex + 1;
+                                      while (
+                                        nuevaFila < crucigrama.tablero.length &&
+                                        crucigrama.tablero[nuevaFila][columnaIndex] === '#'
+                                      ) {
+                                        nuevaFila++;
+                                      }
+                                      if (nuevaFila < crucigrama.tablero.length) {
+                                        setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
+                                      }
+                                    }
+                                  }
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Backspace') {
+                                  e.preventDefault();
+                              
+                                  const nuevoCrucigrama = [...crucigramaVisible];
+                                  // Borrar el contenido de la casilla actual
+                                  nuevoCrucigrama[filaIndex][columnaIndex] = '';
+                                  setCrucigramaVisible(nuevoCrucigrama);
+                              
+                                  // Emitir el cambio al servidor
+                                  socket.emit('actualizarCasilla', {
+                                    codigoSala,
+                                    fila: filaIndex,
+                                    columna: columnaIndex,
+                                    letra: '',
+                                  });
+
+                                  // Mover a la casilla anterior
+                                  if (orientacion === 'horizontal') {
+                                    let nuevaColumna = columnaIndex - 1;
+                                    while (
+                                      nuevaColumna >= 0 &&
+                                      crucigrama.tablero[filaIndex][nuevaColumna] === '#'
+                                    ) {
+                                      nuevaColumna--;
+                                    }
+                                    if (nuevaColumna >= 0) {
+                                      setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
+                                    }
+                                  } else {
+                                    let nuevaFila = filaIndex - 1;
+                                    while (
+                                      nuevaFila >= 0 &&
+                                      crucigrama.tablero[nuevaFila][columnaIndex] === '#'
+                                    ) {
+                                      nuevaFila--;
+                                    }
+                                    if (nuevaFila >= 0) {
+                                      setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
+                                    }
+                                  }
+                                }
+                              }}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                border: 'none',
+                                outline: 'none',
+                                textAlign: 'center',
+                                fontSize: '1rem',
+                                fontWeight: 'bold',
+                                textTransform: 'uppercase',
+                                backgroundColor: 'transparent',
+                                caretColor: 'transparent',
+                              }}
+                              autoFocus
+                            />
+                          ) : (casilla)}
                         </div>
                       );
                     })

@@ -85,6 +85,17 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Actualizar una casilla del crucigrama
+  socket.on('actualizarCasilla', ({ codigoSala, fila, columna, letra }) => {
+    if (!salas[codigoSala]) return;
+  
+    // Actualizar el crucigrama en el servidor
+    salas[codigoSala].crucigrama.tablero[fila][columna] = letra;
+  
+    // Emitir el cambio a todos los jugadores de la sala
+    io.to(codigoSala).emit('casillaActualizada', { fila, columna, letra });
+  });
+
   // Salir de una sala
   socket.on('salirSala', ({ codigoSala, nombre }) => {
     if (!salas[codigoSala]) return;
