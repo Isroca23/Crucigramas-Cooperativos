@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import io from 'socket.io-client';
 import logo from './img/Logo.png';
-import { ReactComponent as GroupAddIcon } from './img/GroupAddRounded.svg';
+import { ReactComponent as CopyIcon } from './img/Copy.svg';
+import { ReactComponent as CopiedIcon } from './img/CopyChecked.svg';
 import { ReactComponent as GroupIcon } from './img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from './img/ExitBold.svg';
 
@@ -284,8 +285,8 @@ function App() {
 
   const copiarCodigoSala = () => {
     navigator.clipboard.writeText(codigoSala);
-    setShowCopiedIcon(true); // Mostrar el ícono
-    setTimeout(() => setShowCopiedIcon(false), 2000); // Ocultar el ícono después de 2 segundos
+    setShowCopiedIcon(true);
+    setTimeout(() => setShowCopiedIcon(false), 2000);
   };
 
   const obtenerPalabraSeleccionada = () => {
@@ -364,19 +365,14 @@ function App() {
       {screen === 'sala' && (
         <>
           <div className="header-bar">
-            <div className="header-left">
+            <button className="header-left" onClick={salirSala}>
               <div className="logo-circle"></div>
               <img src={logo} alt="Logo" className="logo" />
-            </div>
+            </button>
             <div className="header-center">
               <h1><strong>Crucigramas Cooperativos</strong></h1>
             </div>
             <div className="header-right">
-              {/* Icono para invitar jugadores */}
-              <button className="icon-button" onClick={() => {/* Lógica para invitar jugadores */}}>
-                <GroupAddIcon className="icon" />
-              </button>
-
               {/* Icono para ver jugadores */}
               <button className="icon-button" onClick={() => {/* Lógica para ver jugadores */}}>
                 <GroupIcon className="icon" />
@@ -394,8 +390,21 @@ function App() {
             <span><strong>Jugador:</strong> {nombre}</span>
             <span
               onClick={copiarCodigoSala}
-              style={{ cursor: 'pointer' }}
+              style={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                position: 'relative',
+              }}
             >
+              <span className="copy-icon-wrapper">
+                {!showCopiedIcon ? (
+                  <CopyIcon style={{ width: '1rem', height: '1rem' }} />
+                ) : (
+                  <CopiedIcon style={{ width: '1rem', height: '1rem' }} />
+                )}
+              </span>
               <strong>ID Sala:</strong> {codigoSala}
             </span>
           </div>
