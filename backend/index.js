@@ -3,15 +3,20 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
 const { generarCrucigrama } = require('./crucigramas');
-
+const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*', // Permitir solicitudes desde cualquier origen
+    origin: '*', 
     methods: ['GET', 'POST'],
   },
 });
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  methods: ['GET', 'POST'],
+}));
 
 const port = 5000;
 

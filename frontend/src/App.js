@@ -8,7 +8,7 @@ import { ReactComponent as GroupIcon } from './img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from './img/ExitBold.svg';
 
 // Inicializar conexión con el servidor de socket
-const socket = io('http://localhost:5000');
+const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000');
 
 function App() {
   const [screen, setScreen] = useState('initial'); // Manejar la pantalla actual
