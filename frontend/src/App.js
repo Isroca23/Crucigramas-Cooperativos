@@ -24,6 +24,7 @@ function App() {
   const [casillaSeleccionada, setCasillaSeleccionada] = useState({ fila: 0, columna: 0 }); // Casilla seleccionada
   const [orientacion, setOrientacion] = useState('horizontal'); // Orientación de la palabra seleccionada
   const [showCopiedIcon, setShowCopiedIcon] = useState(false); // Estado para mostrar el ícono
+  const [pistas, setPistas] = useState([]); // Estado para almacenar las pistas
 
   useEffect(() => {
     if (tableroRespuestas) {
@@ -40,14 +41,10 @@ function App() {
     });
 
     // Escuchar eventos de actualización de tableros
-    socket.on('tablerosActualizados', ({ tableroRespuestas, tableroVisible }) => {
+    socket.on('tablerosActualizados', ({ tableroRespuestas, tableroVisible, pistas }) => {
       setTableroRespuestas(tableroRespuestas);
       setTableroVisible(tableroVisible);
-    });
-
-    // Escuchar evento de crucigrama generado
-    socket.on('crucigramaGenerado', (crucigramaGenerado) => {
-      setTableroRespuestas(crucigramaGenerado);
+      setPistas(pistas);
     });
 
     // Manejar errores de conexión
@@ -68,7 +65,6 @@ function App() {
     return () => {
       socket.off('jugadoresActualizados');
       socket.off('tablerosActualizados')
-      socket.off('crucigramaGenerado');
       socket.off('connect_error');
       socket.off('casillaActualizada');
     };
@@ -83,6 +79,7 @@ function App() {
       } else {
         setTableroRespuestas(response.tableroRespuestas);
         setTableroVisible(response.tableroVisible);
+        setPistas(response.pistas);
       }
     });
   };
@@ -101,6 +98,7 @@ function App() {
         setJugadores([response.jugador]);
         setTableroVisible(response.tableroVisible);
         setTableroRespuestas(response.tableroRespuestas);
+        setPistas(response.pistas);
         setScreen('sala');
       }
     });
@@ -124,6 +122,7 @@ function App() {
         setJugadores(response.jugadores);
         setTableroRespuestas(response.tableroRespuestas);
         setTableroVisible(response.tableroVisible);
+        setPistas(response.pistas);
         setScreen('sala');
       }
     });
@@ -139,6 +138,7 @@ function App() {
     setJugadores([]);
     setTableroRespuestas(null);
     setTableroVisible(null);
+    setPistas(null);
   };
 
   const esAnfitrion = jugadores.length > 0 && jugadores[0].id === socket.id;
@@ -340,8 +340,8 @@ function App() {
       .toLowerCase();
   
     // Buscar la definición correspondiente
-    const pista = tableroRespuestas.pistas.find((p) => p.palabra.toLowerCase() === palabraActual);
-  
+    const pista = pistas.find((p) => p.palabra.toLowerCase() === palabraActual);
+
     if (!pista) {
       console.warn(`No se encontró una pista para la palabra: ${palabraActual}`);
     }

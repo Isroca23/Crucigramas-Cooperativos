@@ -30,9 +30,22 @@ const unirseSala = (socket, { codigoSala, nombre }, callback) => {
 
   socket.join(codigoSala);
   console.log(`Jugador ${socket.id} (${nombre}) se unió a la sala ${codigoSala}`);
-  socket.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
 
-  callback({ jugador, crucigrama: salas[codigoSala].crucigrama });
+  const crucigrama = salas[codigoSala].crucigrama;
+
+  callback({
+    jugador,
+    jugadores: salas[codigoSala].jugadores,
+    tableroRespuestas: crucigrama ? crucigrama.tablero : null,
+    tableroVisible: crucigrama
+      ? crucigrama.tablero.map((fila) =>
+          fila.map((casilla) => (casilla === '#' ? '#' : ''))
+        )
+      : null,
+    pistas: crucigrama ? crucigrama.pistas : [],
+  });
+
+  socket.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
 };
 
 const salirSala = (socket, { codigoSala, nombre }) => {
@@ -98,6 +111,7 @@ const generarCrucigrama = async (socket, { codigoSala }, callback) => {
       ),
       pistas: crucigrama.pistas,
     });
+    
   } catch (error) {
     console.error('Error al generar crucigrama:', error);
     callback({ error: 'Error al generar el crucigrama.' });
