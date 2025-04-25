@@ -10,11 +10,11 @@ Los crucigramas no solo son divertidos, también nos ayudan a aprender palabras 
 
 ## 🎯 Mis objetivos 🎯
 
-* 🤝 **¡Diversión en equipo!**  Quiero que mi juego sea una forma genial de pasar tiempo con amigos y familiares, ayudándonos a resolver los crucigramas. Para lograr esto, creo salas privadas donde los jugadores pueden invitar a sus amigos y familiares. Además, la sincronización en tiempo real permite que todos vean los avances de los demás y puedan ayudarse mutuamente.
+* 🤝 **¡Diversión en equipo!**  Este juego es una forma genial de pasar tiempo con amigos y familiares, ayudándonos a resolver los crucigramas. Para lograr esto, creo salas privadas donde los jugadores pueden invitar a sus amigos y familiares. Además, la sincronización en tiempo real permite que todos vean los avances de los demás y puedan ayudarse mutuamente.
 
 * 📱 **¡Accesible para todos!**  Utilizo tecnologías web como React.js y Node.js para crear una página que funcione en cualquier dispositivo con conexión a internet. Además, no es necesario registrarse ni descargar nada, lo que facilita mucho el acceso.
 
-* 🩷 **¡Para todos los gustos!**  Quiero crear crucigramas de diferentes temas (cine, historia, deportes...) y con diferentes niveles de dificultad. ¡Así todos pueden jugar!
+* 🩷 **¡Para todos los gustos!**  Estoy implementando diferentes personalizaciones para la generación de crucigramas (cantidad de columnas y filas, acentuación, palabras coloquiales y en desuso...)
 
 * 🏆 **¡Estadísticas para picarse!** Al final de cada partida, los jugadores podrán ver sus estadísticas y compararlas con las de los demás. ¡Esto les motivará a seguir jugando y mejorando!"
 
@@ -30,6 +30,7 @@ Los crucigramas no solo son divertidos, también nos ayudan a aprender palabras 
 
 * **Alojamiento:**
     💻 Vercel: Es una plataforma que me permite desplegar mi página web de forma rápida y sencilla. ¡Así, mi juego está siempre disponible para todo el mundo!
+    🌐 Render: Es una plataforma especializada en backends que me permite desplegar mi servidor para que la web pueda acceder.
 
 ## 📈 Diagramas 📈
 
@@ -60,7 +61,7 @@ Es una letra C de Crucigramas y de Cooperativos formada por piezas de rompecabez
 ### 🔗 Funcionalidades Web 🔗
 
 * **¡Crea tu sala!**  El jugador que crea la sala recibe un código para invitar a sus amigos.
-* **¡Elige tu tema!**  Los jugadores pueden elegir el tema del crucigrama (cine, historia, etc.).
+* **¡A tu gusto!**  El anfitrión puede personalizar el crucigrama antes de generarlo.
 * **¡Sincronización mágica!**  Todos los jugadores ven en tiempo real las letras que se escriben en el crucigrama.
 * **¡Casillas destacadas!**  La casilla donde está escribiendo un jugador se destaca para evitar confusiones.
 * **¡Estadísticas al final!**  Cada jugador puede ver sus estadísticas al final de la partida.
@@ -75,7 +76,7 @@ Este es el repositorio oficial con todo el codigo de mi proyecto:
 
 https://github.com/Isroca23/Crucigramas-Cooperativos
 
-## 🔧 Instalación y Ejecución 🔧
+## 🔧 Instalación y Ejecución Local🔧
 
 ### 1️⃣ Clonar el Repositorio 1️⃣
 ```bash
