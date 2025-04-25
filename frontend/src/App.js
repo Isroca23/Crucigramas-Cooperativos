@@ -27,7 +27,7 @@ function App() {
   const [pistas, setPistas] = useState([]); // Estado para almacenar las pistas
 
   useEffect(() => {
-    if (tableroRespuestas) {
+    if (tableroRespuestas && !tableroVisible) {
       // Crear una copia del crucigrama con casillas vacías
       const tableroVacio = tableroRespuestas.map((fila) =>
         fila.map((casilla) => (casilla === '#' ? '#' : ''))
@@ -68,7 +68,7 @@ function App() {
       socket.off('connect_error');
       socket.off('casillaActualizada');
     };
-  }, [tableroRespuestas]);
+  }, [tableroRespuestas, tableroVisible]);
 
   const generarCrucigrama = () => {
     setIsLoading(true); // Activar el estado de carga
@@ -120,9 +120,9 @@ function App() {
       } else {
         setCodigoSala(codigoSalaInput);
         setJugadores(response.jugadores);
-        setTableroRespuestas(response.tableroRespuestas);
-        setTableroVisible(response.tableroVisible);
-        setPistas(response.pistas);
+        setTableroRespuestas(response.tableroRespuestas || []);
+        setTableroVisible(response.tableroVisible || []);
+        setPistas(response.pistas || []);
         setScreen('sala');
       }
     });

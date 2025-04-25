@@ -10,7 +10,12 @@ const crearSala = (socket, { nombre, codigoSalaInput }, callback) => {
   }
 
   const jugador = { id: socket.id, nombre };
-  salas[codigoSala] = { jugadores: [jugador], crucigrama: null };
+  salas[codigoSala] = {
+    jugadores: [jugador],
+    tableroRespuestas: null,
+    pistas: null,
+    tableroVisible: null,
+  };
 
   socket.join(codigoSala);
   console.log(`Sala creada: ${codigoSala}`);
@@ -31,18 +36,12 @@ const unirseSala = (socket, { codigoSala, nombre }, callback) => {
   socket.join(codigoSala);
   console.log(`Jugador ${socket.id} (${nombre}) se unió a la sala ${codigoSala}`);
 
-  const crucigrama = salas[codigoSala].crucigrama;
-
   callback({
     jugador,
     jugadores: salas[codigoSala].jugadores,
-    tableroRespuestas: crucigrama ? crucigrama.tablero : null,
-    tableroVisible: crucigrama
-      ? crucigrama.tablero.map((fila) =>
-          fila.map((casilla) => (casilla === '#' ? '#' : ''))
-        )
-      : null,
-    pistas: crucigrama ? crucigrama.pistas : [],
+    tableroRespuestas: salas[codigoSala].tableroRespuestas,
+    tableroVisible: salas[codigoSala].tableroVisible,
+    pistas: salas[codigoSala].pistas,
   });
 
   socket.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
@@ -93,23 +92,27 @@ const generarCrucigrama = async (socket, { codigoSala }, callback) => {
 
   try {
     const crucigrama = await generarCrucigramaDesdeModulo();
-    salas[codigoSala].crucigrama = crucigrama;
+
+    // Asignar el tablero de respuestas y las pistas al estado de la sala
+    salas[codigoSala].tableroRespuestas = crucigrama.tablero;
+    salas[codigoSala].pistas = crucigrama.pistas;
+
+    // Crear el tablero visible basado en el tablero de respuestas
+    salas[codigoSala].tableroVisible = crucigrama.tablero.map((fila) =>
+      fila.map((casilla) => (casilla === '#' ? '#' : ''))
+    );
 
     // Emitir el crucigrama generado a todos los jugadores de la sala
     socket.to(codigoSala).emit('tablerosActualizados', {
-      tableroRespuestas: crucigrama.tablero,
-      tableroVisible: crucigrama.tablero.map((fila) =>
-        fila.map((casilla) => (casilla === '#' ? '#' : ''))
-      ),
-      pistas: crucigrama.pistas,
+      tableroRespuestas: salas[codigoSala].tableroRespuestas,
+      tableroVisible: salas[codigoSala].tableroVisible,
+      pistas: salas[codigoSala].pistas,
     });
 
     callback({
-      tableroRespuestas: crucigrama.tablero,
-      tableroVisible: crucigrama.tablero.map((fila) =>
-        fila.map((casilla) => (casilla === '#' ? '#' : ''))
-      ),
-      pistas: crucigrama.pistas,
+      tableroRespuestas: salas[codigoSala].tableroRespuestas,
+      tableroVisible: salas[codigoSala].tableroVisible,
+      pistas: salas[codigoSala].pistas,
     });
     
   } catch (error) {
@@ -121,7 +124,10 @@ const generarCrucigrama = async (socket, { codigoSala }, callback) => {
 const actualizarCasilla = (socket, { codigoSala, fila, columna, letra }) => {
   if (!salas[codigoSala]) return;
 
-  salas[codigoSala].crucigrama.tablero[fila][columna] = letra;
+  // Actualizar el tablero visible en el backend
+  salas[codigoSala].tableroVisible[fila][columna] = letra;
+
+  // Emitir el cambio a todos los jugadores de la sala
   socket.to(codigoSala).emit('casillaActualizada', { fila, columna, letra });
 };
 
