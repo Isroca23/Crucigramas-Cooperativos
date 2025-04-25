@@ -6,6 +6,7 @@ import { ReactComponent as CopyIcon } from './img/Copy.svg';
 import { ReactComponent as CopiedIcon } from './img/CopyChecked.svg';
 import { ReactComponent as GroupIcon } from './img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from './img/ExitBold.svg';
+import { ReactComponent as LoadingIcon } from './img/Loading.svg';
 
 // Inicializar conexión con el servidor de socket
 const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000');
@@ -64,7 +65,7 @@ function App() {
     // Limpiar eventos al desmontar el componente
     return () => {
       socket.off('jugadoresActualizados');
-      socket.off('tablerosActualizados')
+      socket.off('tablerosActualizados');
       socket.off('connect_error');
       socket.off('casillaActualizada');
     };
@@ -369,7 +370,7 @@ function App() {
             placeholder="Código de Sala"
           />
           <button onClick={unirseSala}>Unirse a Sala</button>
-          {error && <p style={{ color: 'red', marginTop: '0.5rem' }}>{error}</p>}
+          {error && <p className="error-message">{error}</p>}
         </div>
       )}
 
@@ -400,21 +401,11 @@ function App() {
           <div className="sub-header">
             <span><strong>Jugador:</strong> {nombre}</span>
             <span
+              className="copy-code"
               onClick={copiarCodigoSala}
-              style={{
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                position: 'relative',
-              }}
             >
               <span className="copy-icon-wrapper">
-                {!showCopiedIcon ? (
-                  <CopyIcon style={{ width: '1rem', height: '1rem' }} />
-                ) : (
-                  <CopiedIcon style={{ width: '1rem', height: '1rem' }} />
-                )}
+                {!showCopiedIcon ? <CopyIcon /> : <CopiedIcon />}
               </span>
               <strong>ID Sala:</strong> {codigoSala}
             </span>
@@ -423,23 +414,10 @@ function App() {
           {/* Contenedores principales */}
           <div className="main-content">
             <div className="crossword-container">
-              {esAnfitrion && (
-                <button onClick={generarCrucigrama} disabled={isLoading}>
-                  {isLoading ? 'Generando...' : 'Generar Crucigrama'}
-                </button>
-              )}
-              {/* Botones de verificación */}
-              <button onClick={verificarCasilla}>Verificar Casilla</button>
-              <button onClick={verificarPalabra}>Verificar Palabra</button>
-              <button onClick={verificarTablero}>Verificar Tablero</button>
-              {isLoading && <p>Cargando crucigrama, por favor espera...</p>}
               {tableroVisible && (
                 <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${tableroVisible[0].length}, 1fr)`,
-                    gap: '5px',
-                  }}
+                  className="crossword-grid"
+                  style={{gridTemplateColumns: `repeat(${tableroVisible[0].length}, 1fr)`,}}
                 >
                   {tableroVisible.map((fila, filaIndex) =>
                     fila.map((casilla, columnaIndex) => {
@@ -453,29 +431,15 @@ function App() {
                       return (
                         <div
                           key={`${filaIndex}-${columnaIndex}`}
-                          style={{
-                            width: '30px',
-                            height: '30px',
-                            fontSize: '1rem',
-                            fontWeight: 'bold',
-                            textTransform: 'uppercase',
-                            display: 'flex',
-                            textAlign: 'center',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: esSeleccionada
-                              ? '#D5BDAF'
+                          className={`casilla ${
+                            esSeleccionada
+                              ? 'seleccionada'
                               : esParteDePalabra
-                              ? '#E3D5CA'
+                              ? 'parte-de-palabra'
                               : casilla === '#'
-                              ? '#9F9890'
-                              : '#EDEDE9',
-                              border: esSeleccionada ? '3px solid #D5BDAF' : 'none',
-                              transform: esSeleccionada ? 'scale(1.1)' : 'none',
-                              transition: 'transform 0.1s',
-                              pointerEvents: casilla === '#' ? 'none' : 'auto',
-                              position: 'relative',
-                          }}
+                              ? 'negra'
+                              : 'vacia'
+                          }`}
                           onClick={() => handleCasillaClick(filaIndex, columnaIndex)}
                         >
                           {esSeleccionada ? (
@@ -488,13 +452,11 @@ function App() {
                             
                                 // Validar si es una letra (A-Z) o Backspace
                                 if (/^[A-Z]$/.test(letra)) {
-                                  e.preventDefault(); // Evitar el comportamiento predeterminado
+                                  e.preventDefault();
                             
                                   const nuevoCrucigrama = [...tableroVisible];
                                   nuevoCrucigrama[filaIndex][columnaIndex] = letra;
                                   setTableroVisible(nuevoCrucigrama);
-                            
-                                  console.log(`Letra escrita: ${letra} en [${filaIndex}, ${columnaIndex}]`);
                             
                                   // Emitir el cambio al servidor
                                   socket.emit('actualizarCasilla', {
@@ -572,7 +534,6 @@ function App() {
                                 }
                               }}
                               onChange={(e) => {
-                                // Esto se mantiene para manejar casos en los que el valor cambia normalmente
                                 const letra = e.target.value.toUpperCase();
                                 const nuevoCrucigrama = [...tableroVisible];
                             
@@ -591,18 +552,7 @@ function App() {
                                   });
                                 }
                               }}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                border: 'none',
-                                outline: 'none',
-                                textAlign: 'center',
-                                fontSize: '1rem',
-                                fontWeight: 'bold',
-                                textTransform: 'uppercase',
-                                backgroundColor: 'transparent',
-                                caretColor: 'transparent',
-                              }}
+                              className="casilla-input"
                               autoFocus
                             />
                           ) : (casilla)}
@@ -612,6 +562,20 @@ function App() {
                   )}
                 </div>
               )}
+              <div className={`buttons-container ${!tableroVisible && !isLoading ? 'centered' : ''}`}>
+                {esAnfitrion && (
+                  <button onClick={generarCrucigrama} disabled={isLoading}>
+                    {isLoading ? (<LoadingIcon className="loading-icon"></LoadingIcon>) : ('Generar Crucigrama')}
+                  </button>
+                )}
+                {tableroVisible && (
+                  <>
+                    <button onClick={verificarCasilla}>Verificar Casilla</button>
+                    <button onClick={verificarPalabra}>Verificar Palabra</button>
+                    <button onClick={verificarTablero}>Verificar Tablero</button>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="tabs-container">
@@ -642,11 +606,9 @@ function App() {
                     {definicionSeleccionada ? (
                       <div>
                         <strong>Definiciones:</strong>
-                        <ol style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                        <ol className="definition-list">
                           {definicionSeleccionada.map((definicion, index) => (
-                            <li key={index} style={{ marginBottom: '0.5rem' }}>
-                              {definicion}
-                            </li>
+                            <li key={index}>{definicion}</li>
                           ))}
                         </ol>
                       </div>
