@@ -6,7 +6,7 @@ const generarCrucigrama = async () => {
 
   // Crear el tablero vacío
   const tablero = crearTablero(13, 13);
-  console.log('Tablero vacío de 13x13 creado.');
+  console.log('Tablero vacío creado.');
 
   // Obtener palabras y definiciones
   const palabrasYDefiniciones = await obtenerPalabrasYDefiniciones();
@@ -101,9 +101,6 @@ const generarCrucigrama = async () => {
                 }
               }
 
-              console.log(
-                `Palabra colocada ${esHorizontal ? 'horizontalmente' : 'verticalmente'}: "${palabra}" en ${esHorizontal ? 'fila' : 'columna'} ${actual}, ${esHorizontal ? 'columna' : 'fila'} ${posicionInicio}`
-              );
               pistas.push({
                 palabra,
                 definiciones,

@@ -16,22 +16,22 @@ function App() {
   const [codigoSalaInput, setCodigoSalaInput] = useState(''); // Almacenar el input del código de sala
   const [nombre, setNombre] = useState(''); // Almacenar el nombre del jugador
   const [error, setError] = useState(''); // Almacenar mensajes de error
-  const [crucigrama, setCrucigrama] = useState(null); // Almacenar el crucigrama generado
+  const [tableroRespuestas, setTableroRespuestas] = useState(null); // Tablero de respuestas correctas
+  const [tableroVisible, setTableroVisible] = useState(null); // Tablero visible para los jugadores
   const [pestanaActiva, setPestanaActiva] = useState('palabras'); // Manejar la pestaña activa
   const [jugadores, setJugadores] = useState([]); // Almacenar la lista de jugadores
   const [isLoading, setIsLoading] = useState(false); // Manejar el estado de carga
   const [casillaSeleccionada, setCasillaSeleccionada] = useState({ fila: 0, columna: 0 }); // Casilla seleccionada
   const [orientacion, setOrientacion] = useState('horizontal'); // Orientación de la palabra seleccionada
   const [showCopiedIcon, setShowCopiedIcon] = useState(false); // Estado para mostrar el ícono
-  const [crucigramaVisible, setCrucigramaVisible] = useState(null); // Crucigrama visible para el usuario
 
   useEffect(() => {
-    if (crucigrama) {
+    if (tableroRespuestas) {
       // Crear una copia del crucigrama con casillas vacías
-      const crucigramaVacio = crucigrama.tablero.map((fila) =>
+      const tableroVacio = tableroRespuestas.map((fila) =>
         fila.map((casilla) => (casilla === '#' ? '#' : ''))
       );
-      setCrucigramaVisible(crucigramaVacio);
+      setTableroVisible(tableroVacio);
     }
     
     // Escuchar eventos de actualización de jugadores
@@ -39,9 +39,15 @@ function App() {
       setJugadores(jugadoresActualizados);
     });
 
+    // Escuchar eventos de actualización de tableros
+    socket.on('tablerosActualizados', ({ tableroRespuestas, tableroVisible }) => {
+      setTableroRespuestas(tableroRespuestas);
+      setTableroVisible(tableroVisible);
+    });
+
     // Escuchar evento de crucigrama generado
     socket.on('crucigramaGenerado', (crucigramaGenerado) => {
-      setCrucigrama(crucigramaGenerado);
+      setTableroRespuestas(crucigramaGenerado);
     });
 
     // Manejar errores de conexión
@@ -51,7 +57,7 @@ function App() {
 
     // Escuchar actualizaciones de casillas
     socket.on('casillaActualizada', ({ fila, columna, letra }) => {
-      setCrucigramaVisible((prevCrucigrama) => {
+      setTableroVisible((prevCrucigrama) => {
         const nuevoCrucigrama = [...prevCrucigrama];
         nuevoCrucigrama[fila][columna] = letra;
         return nuevoCrucigrama;
@@ -61,11 +67,12 @@ function App() {
     // Limpiar eventos al desmontar el componente
     return () => {
       socket.off('jugadoresActualizados');
+      socket.off('tablerosActualizados')
       socket.off('crucigramaGenerado');
       socket.off('connect_error');
       socket.off('casillaActualizada');
     };
-  }, [crucigrama]);
+  }, [tableroRespuestas]);
 
   const generarCrucigrama = () => {
     setIsLoading(true); // Activar el estado de carga
@@ -74,7 +81,8 @@ function App() {
       if (response.error) {
         setError(response.error);
       } else {
-        setCrucigrama(response.crucigrama);
+        setTableroRespuestas(response.tableroRespuestas);
+        setTableroVisible(response.tableroVisible);
       }
     });
   };
@@ -91,7 +99,8 @@ function App() {
       } else {
         setCodigoSala(response.codigoSala);
         setJugadores([response.jugador]);
-        setCrucigrama(response.crucigrama);
+        setTableroVisible(response.tableroVisible);
+        setTableroRespuestas(response.tableroRespuestas);
         setScreen('sala');
       }
     });
@@ -112,8 +121,9 @@ function App() {
         setError(response.error);
       } else {
         setCodigoSala(codigoSalaInput);
-        setJugadores((prev) => [...prev, response.jugador]);
-        setCrucigrama(response.crucigrama);
+        setJugadores(response.jugadores);
+        setTableroRespuestas(response.tableroRespuestas);
+        setTableroVisible(response.tableroVisible);
         setScreen('sala');
       }
     });
@@ -127,7 +137,8 @@ function App() {
     setNombre('');
     setError('');
     setJugadores([]);
-    setCrucigrama(null);
+    setTableroRespuestas(null);
+    setTableroVisible(null);
   };
 
   const esAnfitrion = jugadores.length > 0 && jugadores[0].id === socket.id;
@@ -151,11 +162,11 @@ function App() {
   };
 
   const handleCasillaClick = (fila, columna) => {
-    const casilla = crucigrama.tablero[fila][columna];
+    const casilla = tableroRespuestas[fila][columna];
     if (casilla === '#') return; // No permitir seleccionar casillas negras
 
-    const horizontal = tienePalabraHorizontal(fila, columna, crucigrama.tablero);
-    const vertical = tienePalabraVertical(fila, columna, crucigrama.tablero);
+    const horizontal = tienePalabraHorizontal(fila, columna, tableroRespuestas);
+    const vertical = tienePalabraVertical(fila, columna, tableroRespuestas);
 
     if (casillaSeleccionada.fila === fila && casillaSeleccionada.columna === columna) {
       // Cambiar orientación solo si hay palabras en ambas orientaciones
@@ -178,8 +189,8 @@ function App() {
     };
   
     const intentarSeleccionarPalabra = (fila, columna) => {
-      const horizontal = tienePalabraHorizontal(fila, columna, crucigrama.tablero);
-      const vertical = tienePalabraVertical(fila, columna, crucigrama.tablero);
+      const horizontal = tienePalabraHorizontal(fila, columna, tableroRespuestas);
+      const vertical = tienePalabraVertical(fila, columna, tableroRespuestas);
   
       if (orientacion === 'vertical' && vertical) {
         setOrientacion('vertical');
@@ -195,7 +206,7 @@ function App() {
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       let nuevaFila = fila - 1;
-      while (nuevaFila >= 0 && crucigrama.tablero[nuevaFila][columna] === '#') {
+      while (nuevaFila >= 0 && tableroRespuestas[nuevaFila][columna] === '#') {
         nuevaFila--;
       }
       if (nuevaFila >= 0) {
@@ -205,17 +216,17 @@ function App() {
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       let nuevaFila = fila + 1;
-      while (nuevaFila < crucigrama.tablero.length && crucigrama.tablero[nuevaFila][columna] === '#') {
+      while (nuevaFila < tableroRespuestas.length && tableroRespuestas[nuevaFila][columna] === '#') {
         nuevaFila++;
       }
-      if (nuevaFila < crucigrama.tablero.length) {
+      if (nuevaFila < tableroRespuestas.length) {
         seleccionarNuevaPalabra(nuevaFila, columna, 'vertical');
         intentarSeleccionarPalabra(nuevaFila, columna);
       }
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       let nuevaColumna = columna - 1;
-      while (nuevaColumna >= 0 && crucigrama.tablero[fila][nuevaColumna] === '#') {
+      while (nuevaColumna >= 0 && tableroRespuestas[fila][nuevaColumna] === '#') {
         nuevaColumna--;
       }
       if (nuevaColumna >= 0) {
@@ -225,17 +236,17 @@ function App() {
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
       let nuevaColumna = columna + 1;
-      while (nuevaColumna < crucigrama.tablero[fila].length && crucigrama.tablero[fila][nuevaColumna] === '#') {
+      while (nuevaColumna < tableroRespuestas[fila].length && tableroRespuestas[fila][nuevaColumna] === '#') {
         nuevaColumna++;
       }
-      if (nuevaColumna < crucigrama.tablero[fila].length) {
+      if (nuevaColumna < tableroRespuestas[fila].length) {
         seleccionarNuevaPalabra(fila, nuevaColumna, 'horizontal');
         intentarSeleccionarPalabra(fila, nuevaColumna);
       }
     } else if (e.key === 'Tab') {
       e.preventDefault(); // Evitar el comportamiento predeterminado del tab
-      const horizontal = tienePalabraHorizontal(fila, columna, crucigrama.tablero);
-      const vertical = tienePalabraVertical(fila, columna, crucigrama.tablero);
+      const horizontal = tienePalabraHorizontal(fila, columna, tableroRespuestas);
+      const vertical = tienePalabraVertical(fila, columna, tableroRespuestas);
       if (horizontal && vertical) {
         setOrientacion((prev) => (prev === 'horizontal' ? 'vertical' : 'horizontal'));
       }
@@ -247,8 +258,8 @@ function App() {
 
   const verificarCasilla = () => {
     const { fila, columna } = casillaSeleccionada;
-    const letraCorrecta = crucigrama.tablero[fila][columna];
-    if (crucigramaVisible[fila][columna] === letraCorrecta) {
+    const letraCorrecta = tableroRespuestas[fila][columna];
+    if (tableroVisible[fila][columna] === letraCorrecta) {
       alert('¡La casilla es correcta!');
     } else {
       alert('La casilla es incorrecta.');
@@ -257,10 +268,10 @@ function App() {
 
   const verificarPalabra = () => {
     const palabraActual = palabraSeleccionada
-      .map(({ fila, columna }) => crucigramaVisible[fila][columna])
+      .map(({ fila, columna }) => tableroVisible[fila][columna])
       .join('');
     const palabraCorrecta = palabraSeleccionada
-      .map(({ fila, columna }) => crucigrama.tablero[fila][columna])
+      .map(({ fila, columna }) => tableroRespuestas[fila][columna])
       .join('');
     if (palabraActual === palabraCorrecta) {
       alert('¡La palabra es correcta!');
@@ -270,10 +281,10 @@ function App() {
   };
 
   const verificarTablero = () => {
-    const esCorrecto = crucigramaVisible.every((fila, filaIndex) =>
+    const esCorrecto = tableroVisible.every((fila, filaIndex) =>
       fila.every(
         (casilla, columnaIndex) =>
-          casilla === crucigrama.tablero[filaIndex][columnaIndex]
+          casilla === tableroRespuestas[filaIndex][columnaIndex]
       )
     );
     if (esCorrecto) {
@@ -290,26 +301,26 @@ function App() {
   };
 
   const obtenerPalabraSeleccionada = () => {
-    if (!crucigrama) return [];
+    if (!tableroRespuestas) return [];
     const { fila, columna } = casillaSeleccionada;
     let palabra = [];
     if (orientacion === 'horizontal') {
       // Obtener palabra horizontal
       let inicio = columna;
-      while (inicio > 0 && crucigrama.tablero[fila][inicio - 1] !== '#') inicio--;
+      while (inicio > 0 && tableroRespuestas[fila][inicio - 1] !== '#') inicio--;
       let fin = columna;
-      while (fin < crucigrama.tablero[fila].length && crucigrama.tablero[fila][fin] !== '#') fin++;
-      palabra = crucigrama.tablero[fila].slice(inicio, fin).map((_, index) => ({
+      while (fin < tableroRespuestas[fila].length && tableroRespuestas[fila][fin] !== '#') fin++;
+      palabra = tableroRespuestas[fila].slice(inicio, fin).map((_, index) => ({
         fila,
         columna: inicio + index,
       }));
     } else {
       // Obtener palabra vertical
       let inicio = fila;
-      while (inicio > 0 && crucigrama.tablero[inicio - 1][columna] !== '#') inicio--;
+      while (inicio > 0 && tableroRespuestas[inicio - 1][columna] !== '#') inicio--;
       let fin = fila;
-      while (fin < crucigrama.tablero.length && crucigrama.tablero[fin][columna] !== '#') fin++;
-      palabra = crucigrama.tablero.slice(inicio, fin).map((_, index) => ({
+      while (fin < tableroRespuestas.length && tableroRespuestas[fin][columna] !== '#') fin++;
+      palabra = tableroRespuestas.slice(inicio, fin).map((_, index) => ({
         fila: inicio + index,
         columna,
       }));
@@ -320,16 +331,16 @@ function App() {
   const palabraSeleccionada = obtenerPalabraSeleccionada();
 
   const obtenerDefinicionSeleccionada = () => {
-    if (!crucigrama || palabraSeleccionada.length === 0) return null;
+    if (!tableroRespuestas || palabraSeleccionada.length === 0) return null;
   
     // Convertir la palabra seleccionada en un string
     const palabraActual = palabraSeleccionada
-      .map(({ fila, columna }) => crucigrama.tablero[fila][columna])
+      .map(({ fila, columna }) => tableroRespuestas[fila][columna])
       .join('')
       .toLowerCase();
   
     // Buscar la definición correspondiente
-    const pista = crucigrama.pistas.find((p) => p.palabra.toLowerCase() === palabraActual);
+    const pista = tableroRespuestas.pistas.find((p) => p.palabra.toLowerCase() === palabraActual);
   
     if (!pista) {
       console.warn(`No se encontró una pista para la palabra: ${palabraActual}`);
@@ -422,15 +433,15 @@ function App() {
               <button onClick={verificarPalabra}>Verificar Palabra</button>
               <button onClick={verificarTablero}>Verificar Tablero</button>
               {isLoading && <p>Cargando crucigrama, por favor espera...</p>}
-              {crucigramaVisible && (
+              {tableroVisible && (
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: `repeat(${crucigramaVisible[0].length}, 1fr)`,
+                    gridTemplateColumns: `repeat(${tableroVisible[0].length}, 1fr)`,
                     gap: '5px',
                   }}
                 >
-                  {crucigramaVisible.map((fila, filaIndex) =>
+                  {tableroVisible.map((fila, filaIndex) =>
                     fila.map((casilla, columnaIndex) => {
                       const esSeleccionada =
                         casillaSeleccionada.fila === filaIndex &&
@@ -474,12 +485,12 @@ function App() {
                               value={casilla === '#' ? '' : casilla}
                               onChange={(e) => {
                                 const letra = e.target.value.toUpperCase();
-                                const nuevoCrucigrama = [...crucigramaVisible];
+                                const nuevoCrucigrama = [...tableroVisible];
                               
                                 if (/^[A-Z]?$/.test(letra)) {
                                   // Actualizar el estado local inmediatamente
                                   nuevoCrucigrama[filaIndex][columnaIndex] = letra || '';
-                                  setCrucigramaVisible(nuevoCrucigrama);
+                                  setTableroVisible(nuevoCrucigrama);
                               
                                   // Emitir el cambio al servidor
                                   socket.emit('actualizarCasilla', {
@@ -494,23 +505,23 @@ function App() {
                                     if (orientacion === 'horizontal') {
                                       let nuevaColumna = columnaIndex + 1;
                                       while (
-                                        nuevaColumna < crucigrama.tablero[filaIndex].length &&
-                                        crucigrama.tablero[filaIndex][nuevaColumna] === '#'
+                                        nuevaColumna < tableroRespuestas[filaIndex].length &&
+                                        tableroRespuestas[filaIndex][nuevaColumna] === '#'
                                       ) {
                                         nuevaColumna++;
                                       }
-                                      if (nuevaColumna < crucigrama.tablero[filaIndex].length) {
+                                      if (nuevaColumna < tableroRespuestas[filaIndex].length) {
                                         setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
                                       }
                                     } else {
                                       let nuevaFila = filaIndex + 1;
                                       while (
-                                        nuevaFila < crucigrama.tablero.length &&
-                                        crucigrama.tablero[nuevaFila][columnaIndex] === '#'
+                                        nuevaFila < tableroRespuestas.length &&
+                                        tableroRespuestas[nuevaFila][columnaIndex] === '#'
                                       ) {
                                         nuevaFila++;
                                       }
-                                      if (nuevaFila < crucigrama.tablero.length) {
+                                      if (nuevaFila < tableroRespuestas.length) {
                                         setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
                                       }
                                     }
@@ -521,10 +532,10 @@ function App() {
                                 if (e.key === 'Backspace') {
                                   e.preventDefault();
                               
-                                  const nuevoCrucigrama = [...crucigramaVisible];
+                                  const nuevoCrucigrama = [...tableroVisible];
                                   // Borrar el contenido de la casilla actual
                                   nuevoCrucigrama[filaIndex][columnaIndex] = '';
-                                  setCrucigramaVisible(nuevoCrucigrama);
+                                  setTableroVisible(nuevoCrucigrama);
                               
                                   // Emitir el cambio al servidor
                                   socket.emit('actualizarCasilla', {
@@ -539,7 +550,7 @@ function App() {
                                     let nuevaColumna = columnaIndex - 1;
                                     while (
                                       nuevaColumna >= 0 &&
-                                      crucigrama.tablero[filaIndex][nuevaColumna] === '#'
+                                      tableroRespuestas[filaIndex][nuevaColumna] === '#'
                                     ) {
                                       nuevaColumna--;
                                     }
@@ -550,7 +561,7 @@ function App() {
                                     let nuevaFila = filaIndex - 1;
                                     while (
                                       nuevaFila >= 0 &&
-                                      crucigrama.tablero[nuevaFila][columnaIndex] === '#'
+                                      tableroRespuestas[nuevaFila][columnaIndex] === '#'
                                     ) {
                                       nuevaFila--;
                                     }

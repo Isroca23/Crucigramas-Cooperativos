@@ -1,6 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { generarCrucigrama: generarCrucigramaDesdeModulo } = require('./crucigramas'); // Renombrar la función importada
-
+const { generarCrucigrama: generarCrucigramaDesdeModulo } = require('./crucigramas');
 const salas = {};
 
 const crearSala = (socket, { nombre, codigoSalaInput }, callback) => {
@@ -79,20 +78,26 @@ const generarCrucigrama = async (socket, { codigoSala }, callback) => {
     return;
   }
 
-  const sala = salas[codigoSala];
-  const anfitrion = sala.jugadores[0];
-
-  if (socket.id !== anfitrion.id) {
-    callback({ error: 'Solo el anfitrión puede generar el crucigrama.' });
-    return;
-  }
-
   try {
-    const crucigrama = await generarCrucigramaDesdeModulo(); // Usar el nombre renombrado
-    sala.crucigrama = crucigrama;
+    const crucigrama = await generarCrucigramaDesdeModulo();
+    salas[codigoSala].crucigrama = crucigrama;
 
-    socket.to(codigoSala).emit('crucigramaGenerado', crucigrama);
-    callback({ crucigrama });
+    // Emitir el crucigrama generado a todos los jugadores de la sala
+    socket.to(codigoSala).emit('tablerosActualizados', {
+      tableroRespuestas: crucigrama.tablero,
+      tableroVisible: crucigrama.tablero.map((fila) =>
+        fila.map((casilla) => (casilla === '#' ? '#' : ''))
+      ),
+      pistas: crucigrama.pistas,
+    });
+
+    callback({
+      tableroRespuestas: crucigrama.tablero,
+      tableroVisible: crucigrama.tablero.map((fila) =>
+        fila.map((casilla) => (casilla === '#' ? '#' : ''))
+      ),
+      pistas: crucigrama.pistas,
+    });
   } catch (error) {
     console.error('Error al generar crucigrama:', error);
     callback({ error: 'Error al generar el crucigrama.' });
