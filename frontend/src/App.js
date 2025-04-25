@@ -483,15 +483,19 @@ function App() {
                               type="text"
                               maxLength="1"
                               value={casilla === '#' ? '' : casilla}
-                              onChange={(e) => {
-                                const letra = e.target.value.toUpperCase();
-                                const nuevoCrucigrama = [...tableroVisible];
-                              
-                                if (/^[A-Z]?$/.test(letra)) {
-                                  // Actualizar el estado local inmediatamente
-                                  nuevoCrucigrama[filaIndex][columnaIndex] = letra || '';
+                              onKeyDown={(e) => {
+                                const letra = e.key.toUpperCase();
+                            
+                                // Validar si es una letra (A-Z) o Backspace
+                                if (/^[A-Z]$/.test(letra)) {
+                                  e.preventDefault(); // Evitar el comportamiento predeterminado
+                            
+                                  const nuevoCrucigrama = [...tableroVisible];
+                                  nuevoCrucigrama[filaIndex][columnaIndex] = letra;
                                   setTableroVisible(nuevoCrucigrama);
-                              
+                            
+                                  console.log(`Letra escrita: ${letra} en [${filaIndex}, ${columnaIndex}]`);
+                            
                                   // Emitir el cambio al servidor
                                   socket.emit('actualizarCasilla', {
                                     codigoSala,
@@ -499,44 +503,40 @@ function App() {
                                     columna: columnaIndex,
                                     letra,
                                   });
-                              
-                                  // Mover a la siguiente casilla al introducir una letra
-                                  if (letra) {
-                                    if (orientacion === 'horizontal') {
-                                      let nuevaColumna = columnaIndex + 1;
-                                      while (
-                                        nuevaColumna < tableroRespuestas[filaIndex].length &&
-                                        tableroRespuestas[filaIndex][nuevaColumna] === '#'
-                                      ) {
-                                        nuevaColumna++;
-                                      }
-                                      if (nuevaColumna < tableroRespuestas[filaIndex].length) {
-                                        setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
-                                      }
-                                    } else {
-                                      let nuevaFila = filaIndex + 1;
-                                      while (
-                                        nuevaFila < tableroRespuestas.length &&
-                                        tableroRespuestas[nuevaFila][columnaIndex] === '#'
-                                      ) {
-                                        nuevaFila++;
-                                      }
-                                      if (nuevaFila < tableroRespuestas.length) {
-                                        setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
-                                      }
+                            
+                                  // Mover a la siguiente casilla
+                                  if (orientacion === 'horizontal') {
+                                    let nuevaColumna = columnaIndex + 1;
+                                    while (
+                                      nuevaColumna < tableroRespuestas[filaIndex].length &&
+                                      tableroRespuestas[filaIndex][nuevaColumna] === '#'
+                                    ) {
+                                      nuevaColumna++;
+                                    }
+                                    if (nuevaColumna < tableroRespuestas[filaIndex].length) {
+                                      setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
+                                    }
+                                  } else {
+                                    let nuevaFila = filaIndex + 1;
+                                    while (
+                                      nuevaFila < tableroRespuestas.length &&
+                                      tableroRespuestas[nuevaFila][columnaIndex] === '#'
+                                    ) {
+                                      nuevaFila++;
+                                    }
+                                    if (nuevaFila < tableroRespuestas.length) {
+                                      setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
                                     }
                                   }
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Backspace') {
-                                  e.preventDefault();
-                              
+                                } else if (e.key === 'Backspace') {
+                                  e.preventDefault(); // Evitar el comportamiento predeterminado
+                            
                                   const nuevoCrucigrama = [...tableroVisible];
-                                  // Borrar el contenido de la casilla actual
                                   nuevoCrucigrama[filaIndex][columnaIndex] = '';
                                   setTableroVisible(nuevoCrucigrama);
-                              
+                            
+                                  console.log(`Backspace presionado en [${filaIndex}, ${columnaIndex}]`);
+                            
                                   // Emitir el cambio al servidor
                                   socket.emit('actualizarCasilla', {
                                     codigoSala,
@@ -544,7 +544,7 @@ function App() {
                                     columna: columnaIndex,
                                     letra: '',
                                   });
-
+                            
                                   // Mover a la casilla anterior
                                   if (orientacion === 'horizontal') {
                                     let nuevaColumna = columnaIndex - 1;
@@ -569,6 +569,26 @@ function App() {
                                       setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
                                     }
                                   }
+                                }
+                              }}
+                              onChange={(e) => {
+                                // Esto se mantiene para manejar casos en los que el valor cambia normalmente
+                                const letra = e.target.value.toUpperCase();
+                                const nuevoCrucigrama = [...tableroVisible];
+                            
+                                if (/^[A-Z]?$/.test(letra)) {
+                                  nuevoCrucigrama[filaIndex][columnaIndex] = letra || '';
+                                  setTableroVisible(nuevoCrucigrama);
+                            
+                                  console.log(`Estado actualizado de la casilla [${filaIndex}, ${columnaIndex}]: ${nuevoCrucigrama[filaIndex][columnaIndex]}`);
+                            
+                                  // Emitir el cambio al servidor
+                                  socket.emit('actualizarCasilla', {
+                                    codigoSala,
+                                    fila: filaIndex,
+                                    columna: columnaIndex,
+                                    letra,
+                                  });
                                 }
                               }}
                               style={{
