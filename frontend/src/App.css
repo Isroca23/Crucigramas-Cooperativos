@@ -206,23 +206,37 @@ code {
   position: relative;
 }
 
+/* Subclases para animaciones */
+.casilla.correcto {
+  animation: ola 0.5s ease-in-out;
+  animation-delay: var(--animation-delay);
+  color: #28a745;
+}
+
+.casilla.error {
+  animation: temblor 1s ease-in-out;
+  color: #E53935 ;
+}
+
+/* Clases adicionales */
+
 .casilla.seleccionada {
-  background-color: #D5BDAF;
-  border: 3px solid #D5BDAF;
+  background-color: var(--color-accent) !important;
+  border: 3px solid var(--color-accent) !important;
   transform: scale(1.1);
 }
 
 .casilla.parte-de-palabra {
-  background-color: #E3D5CA;
+  background-color: var(--color-soft) !important;
 }
 
 .casilla.negra {
-  background-color: #9F9890;
+  background-color: var(--color-dark) !important;
   pointer-events: none;
 }
 
 .casilla.vacia {
-  background-color: #EDEDE9;
+  background-color: var(--color-bg) !important;
 }
 
 /* Input dentro de las casillas */
@@ -340,4 +354,36 @@ code {
 .tab-content ol li {
   margin-bottom: 0.5rem;
   line-height: 1.5;
+}
+
+/* Animación de ola (correcto) */
+@keyframes ola {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.5rem);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Animación de temblor (error) */
+@keyframes temblor {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+  75% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }

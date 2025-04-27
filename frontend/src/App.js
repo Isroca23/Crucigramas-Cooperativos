@@ -26,14 +26,12 @@ function App() {
   const [orientacion, setOrientacion] = useState('horizontal'); // Orientación de la palabra seleccionada
   const [showCopiedIcon, setShowCopiedIcon] = useState(false); // Estado para mostrar el ícono
   const [pistas, setPistas] = useState([]); // Estado para almacenar las pistas
+  const [animaciones, setAnimaciones] = useState([]); // Estado para manejar animaciones
 
   useEffect(() => {
+    
     if (tableroRespuestas && !tableroVisible) {
-      // Crear una copia del crucigrama con casillas vacías
-      const tableroVacio = tableroRespuestas.map((fila) =>
-        fila.map((casilla) => (casilla === '#' ? '#' : ''))
-      );
-      setTableroVisible(tableroVacio);
+      setTableroVisible(tableroVisible);
     }
     
     // Escuchar eventos de actualización de jugadores
@@ -181,27 +179,27 @@ function App() {
     }
   };
 
+  const intentarSeleccionarPalabra = (fila, columna) => {
+    const horizontal = tienePalabraHorizontal(fila, columna, tableroRespuestas);
+    const vertical = tienePalabraVertical(fila, columna, tableroRespuestas);
+
+    if (orientacion === 'vertical' && vertical) {
+      setOrientacion('vertical');
+    } else if (orientacion === 'horizontal' && horizontal) {
+      setOrientacion('horizontal');
+    } else if (vertical) {
+      setOrientacion('vertical');
+    } else if (horizontal) {
+      setOrientacion('horizontal');
+    }
+  };
+
   const handleKeyDown = (e) => {
     const { fila, columna } = casillaSeleccionada;
   
     const seleccionarNuevaPalabra = (nuevaFila, nuevaColumna, nuevaOrientacion) => {
       setCasillaSeleccionada({ fila: nuevaFila, columna: nuevaColumna });
       setOrientacion(nuevaOrientacion);
-    };
-  
-    const intentarSeleccionarPalabra = (fila, columna) => {
-      const horizontal = tienePalabraHorizontal(fila, columna, tableroRespuestas);
-      const vertical = tienePalabraVertical(fila, columna, tableroRespuestas);
-  
-      if (orientacion === 'vertical' && vertical) {
-        setOrientacion('vertical');
-      } else if (orientacion === 'horizontal' && horizontal) {
-        setOrientacion('horizontal');
-      } else if (vertical) {
-        setOrientacion('vertical');
-      } else if (horizontal) {
-        setOrientacion('horizontal');
-      }
     };
   
     if (e.key === 'ArrowUp') {
@@ -260,39 +258,70 @@ function App() {
   const verificarCasilla = () => {
     const { fila, columna } = casillaSeleccionada;
     const letraCorrecta = tableroRespuestas[fila][columna];
-    if (tableroVisible[fila][columna] === letraCorrecta) {
-      alert('¡La casilla es correcta!');
-    } else {
-      alert('La casilla es incorrecta.');
-    }
+    const letraVisible = tableroVisible[fila][columna];
+    const esCorrecto = letraVisible === letraCorrecta;
+
+    console.log(`letra correcta`, letraCorrecta);
+    console.log(`letra visible`, letraVisible);
+
+    setAnimaciones([{ fila, columna, tipo: esCorrecto ? 'correcto' : 'error' }]);
+
+    setTimeout(() => setAnimaciones([]), 2000);
   };
 
   const verificarPalabra = () => {
-    const palabraActual = palabraSeleccionada
-      .map(({ fila, columna }) => tableroVisible[fila][columna])
-      .join('');
-    const palabraCorrecta = palabraSeleccionada
-      .map(({ fila, columna }) => tableroRespuestas[fila][columna])
-      .join('');
-    if (palabraActual === palabraCorrecta) {
-      alert('¡La palabra es correcta!');
-    } else {
-      alert('La palabra es incorrecta.');
+    const nuevasAnimaciones = [];
+    let esPalabraCorrecta = true;
+  
+    // Recorrer las casillas de la palabra seleccionada
+    palabraSeleccionada.forEach(({ fila, columna }, index) => {
+      const letraCorrecta = tableroRespuestas[fila][columna];
+      const letraVisible = tableroVisible[fila][columna];
+  
+      if (letraVisible !== letraCorrecta) {
+        // Si hay una casilla incorrecta, agregar animación de error
+        nuevasAnimaciones.push({ fila, columna, tipo: 'error' });
+        esPalabraCorrecta = false; // Marcar que la palabra no es completamente correcta
+      }
+    });
+  
+    if (esPalabraCorrecta) {
+      // Si toda la palabra es correcta, aplicar animación de correcto a todas las casillas
+      palabraSeleccionada.forEach(({ fila, columna }, index) => {
+        nuevasAnimaciones.push({ fila, columna, tipo: 'correcto', delay: `${index * 0.1}s`, });
+      });
     }
+  
+    setAnimaciones(nuevasAnimaciones);
   };
 
   const verificarTablero = () => {
-    const esCorrecto = tableroVisible.every((fila, filaIndex) =>
-      fila.every(
-        (casilla, columnaIndex) =>
-          casilla === tableroRespuestas[filaIndex][columnaIndex]
-      )
-    );
-    if (esCorrecto) {
-      alert('¡El tablero completo es correcto!');
-    } else {
-      alert('El tablero tiene errores.');
+    const nuevasAnimaciones = [];
+    let esTodoCorrecto = true;
+  
+    // Recorrer el tablero visible y compararlo con el tablero de respuestas
+    tableroVisible.forEach((fila, filaIndex) => {
+      fila.forEach((casilla, columnaIndex) => {
+        if (casilla !== tableroRespuestas[filaIndex][columnaIndex]) {
+          // Si hay una casilla incorrecta, agregar animación de error
+          nuevasAnimaciones.push({ fila: filaIndex, columna: columnaIndex, tipo: 'error'})
+          esTodoCorrecto = false;
+        }
+      });
+    });
+  
+    if (esTodoCorrecto) {
+      // Si todo el tablero es correcto, aplicar animación de correcto a todas las casillas
+      tableroVisible.forEach((fila, filaIndex) => {
+        fila.forEach((casilla, columnaIndex) => {
+          if (casilla !== '#') {
+            nuevasAnimaciones.push({ fila: filaIndex, columna: columnaIndex, tipo: 'correcto', delay: `${(filaIndex * fila.length + columnaIndex) * 0.01}s`, });
+          }
+        });
+      });
     }
+  
+    setAnimaciones(nuevasAnimaciones);
   };
 
   const copiarCodigoSala = () => {
@@ -428,21 +457,37 @@ function App() {
                         (p) => p.fila === filaIndex && p.columna === columnaIndex
                       );
 
+                      // Buscar si la casilla tiene una animación activa
+                      const animacion = animaciones.find(
+                        (a) => a.fila === filaIndex && a.columna === columnaIndex
+                      );
+
                       return (
                         <div
                           key={`${filaIndex}-${columnaIndex}`}
                           className={`casilla ${
-                            esSeleccionada
+                            casilla === '#'
+                              ? 'negra'
+                              : esSeleccionada
                               ? 'seleccionada'
                               : esParteDePalabra
                               ? 'parte-de-palabra'
-                              : casilla === '#'
-                              ? 'negra'
                               : 'vacia'
-                          }`}
+                            } ${animacion ? (animacion.tipo === 'correcto' ? 'correcto' : 'error') : ''}`}
+                          style={{
+                            '--animation-delay': animacion?.delay || '0s',
+                          }}
                           onClick={() => handleCasillaClick(filaIndex, columnaIndex)}
+                          onAnimationEnd={() => {
+                            // Eliminar la animación de la casilla cuando termine
+                            setAnimaciones((prevAnimaciones) =>
+                              prevAnimaciones.filter(
+                                (a) => !(a.fila === filaIndex && a.columna === columnaIndex)
+                              )
+                            );
+                          }}
                         >
-                          {esSeleccionada ? (
+                          {casilla === '#' ? '' : esSeleccionada ? (
                             <input
                               type="text"
                               maxLength="1"
@@ -450,8 +495,8 @@ function App() {
                               onKeyDown={(e) => {
                                 const letra = e.key.toUpperCase();
                             
-                                // Validar si es una letra (A-Z) o Backspace
-                                if (/^[A-Z]$/.test(letra)) {
+                                // Validar si es una letra o Backspace
+                                if (/^[A-ZÑÁÉÍÓÚÜ]$/.test(letra)) {
                                   e.preventDefault();
                             
                                   const nuevoCrucigrama = [...tableroVisible];
@@ -477,6 +522,7 @@ function App() {
                                     }
                                     if (nuevaColumna < tableroRespuestas[filaIndex].length) {
                                       setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
+                                      intentarSeleccionarPalabra(filaIndex, nuevaColumna);
                                     }
                                   } else {
                                     let nuevaFila = filaIndex + 1;
@@ -488,6 +534,7 @@ function App() {
                                     }
                                     if (nuevaFila < tableroRespuestas.length) {
                                       setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
+                                      intentarSeleccionarPalabra(nuevaFila, columnaIndex);
                                     }
                                   }
                                 } else if (e.key === 'Backspace') {
@@ -518,6 +565,7 @@ function App() {
                                     }
                                     if (nuevaColumna >= 0) {
                                       setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
+                                      intentarSeleccionarPalabra(filaIndex, nuevaColumna);
                                     }
                                   } else {
                                     let nuevaFila = filaIndex - 1;
@@ -529,6 +577,7 @@ function App() {
                                     }
                                     if (nuevaFila >= 0) {
                                       setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
+                                      intentarSeleccionarPalabra(nuevaFila, columnaIndex);
                                     }
                                   }
                                 }
@@ -537,7 +586,7 @@ function App() {
                                 const letra = e.target.value.toUpperCase();
                                 const nuevoCrucigrama = [...tableroVisible];
                             
-                                if (/^[A-Z]?$/.test(letra)) {
+                                if (/^[A-ZÑÁÉÍÓÚÜ]?$/.test(letra)) {
                                   nuevoCrucigrama[filaIndex][columnaIndex] = letra || '';
                                   setTableroVisible(nuevoCrucigrama);
                             

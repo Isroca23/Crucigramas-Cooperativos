@@ -93,12 +93,17 @@ const generarCrucigrama = async (socket, { codigoSala }, callback) => {
   try {
     const crucigrama = await generarCrucigramaDesdeModulo();
 
+    // Convertir el tablero de respuestas a mayúsculas
+    const tableroRespuestas = crucigrama.tablero.map((fila) =>
+      fila.map((casilla) => (casilla && casilla !== '#' ? casilla.toUpperCase() : casilla))
+    );
+
     // Asignar el tablero de respuestas y las pistas al estado de la sala
-    salas[codigoSala].tableroRespuestas = crucigrama.tablero;
+    salas[codigoSala].tableroRespuestas = tableroRespuestas;
     salas[codigoSala].pistas = crucigrama.pistas;
 
     // Crear el tablero visible basado en el tablero de respuestas
-    salas[codigoSala].tableroVisible = crucigrama.tablero.map((fila) =>
+    salas[codigoSala].tableroVisible = tableroRespuestas.map((fila) =>
       fila.map((casilla) => (casilla === '#' ? '#' : ''))
     );
 
