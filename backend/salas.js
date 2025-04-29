@@ -64,7 +64,6 @@ const salirSala = (socket, { codigoSala, nombre }) => {
 };
 
 const manejarDesconexion = (socket) => {
-  console.log(`Jugador desconectado: ${socket.id}`);
 
   for (const codigoSala in salas) {
     const sala = salas[codigoSala];
@@ -72,7 +71,7 @@ const manejarDesconexion = (socket) => {
 
     if (jugadorIndex !== -1) {
       sala.jugadores.splice(jugadorIndex, 1);
-      console.log(`Jugador eliminado de la sala ${codigoSala}`);
+      console.log(`Jugador ${socket.id} salió de la sala ${codigoSala}`);
       socket.to(codigoSala).emit('jugadoresActualizados', sala.jugadores);
 
       if (sala.jugadores.length === 0) {
@@ -84,14 +83,14 @@ const manejarDesconexion = (socket) => {
   }
 };
 
-const generarCrucigrama = async (socket, { codigoSala }, callback) => {
+const generarCrucigrama = async (socket, { codigoSala, configuracion }, callback) => {
   if (!salas[codigoSala]) {
     callback({ error: 'La sala no existe.' });
     return;
   }
 
   try {
-    const crucigrama = await generarCrucigramaDesdeModulo();
+    const crucigrama = await generarCrucigramaDesdeModulo(configuracion);
 
     // Convertir el tablero de respuestas a mayúsculas
     const tableroRespuestas = crucigrama.tablero.map((fila) =>
@@ -136,4 +135,16 @@ const actualizarCasilla = (socket, { codigoSala, fila, columna, letra }) => {
   socket.to(codigoSala).emit('casillaActualizada', { fila, columna, letra });
 };
 
-module.exports = { crearSala, unirseSala, salirSala, manejarDesconexion, generarCrucigrama, actualizarCasilla };
+const guardarConfiguracion = (socket, { codigoSala, configuracionCrucigrama }, callback) => {
+  const sala = salas[codigoSala];
+  if (!sala) {
+    return callback({ error: 'La sala no existe.' });
+  }
+
+  // Actualizar la configuración de la sala
+  sala.configuracionCrucigrama = { ...sala.configuracionCrucigrama, ...configuracionCrucigrama };
+
+  callback({ success: true });
+};
+
+module.exports = { crearSala, unirseSala, salirSala, manejarDesconexion, generarCrucigrama, actualizarCasilla, guardarConfiguracion, };

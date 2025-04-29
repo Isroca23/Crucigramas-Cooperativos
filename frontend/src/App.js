@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Modal from './Modal.js';
 import './App.css';
 import io from 'socket.io-client';
 import logo from './img/Logo.png';
@@ -7,6 +8,7 @@ import { ReactComponent as CopiedIcon } from './img/CopyChecked.svg';
 import { ReactComponent as GroupIcon } from './img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from './img/ExitBold.svg';
 import { ReactComponent as LoadingIcon } from './img/Loading.svg';
+import { ReactComponent as SettingsIcon } from './img/Settings.svg';
 
 // Inicializar conexión con el servidor de socket
 const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000');
@@ -27,6 +29,15 @@ function App() {
   const [showCopiedIcon, setShowCopiedIcon] = useState(false); // Estado para mostrar el ícono
   const [pistas, setPistas] = useState([]); // Estado para almacenar las pistas
   const [animaciones, setAnimaciones] = useState([]); // Estado para manejar animaciones
+  const [formVisible, setFormVisible] = useState(false); // Formulario de generación de crucigrama visible
+  const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
+  const [mostrarModalDesconexion, setMostrarModalDesconexion] = useState(false);
+  const [configuracionCrucigrama, setConfiguracionCrucigrama] = useState({ //Configuración de generación de crucigrama
+    filas: 13,
+    columnas: 13,
+    PalabrasColoquiales: true,
+    PalabrasEnDesuso: true,
+  });
 
   useEffect(() => {
     
@@ -60,18 +71,35 @@ function App() {
       });
     });
 
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+  
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     // Limpiar eventos al desmontar el componente
     return () => {
       socket.off('jugadoresActualizados');
       socket.off('tablerosActualizados');
       socket.off('connect_error');
       socket.off('casillaActualizada');
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [tableroRespuestas, tableroVisible]);
 
   const generarCrucigrama = () => {
+    if (tableroVisible) {
+      setMostrarModalConfirmacion(true);
+      return;
+    }
+
+      iniciarGeneracionCrucigrama();
+    };
+
+  const iniciarGeneracionCrucigrama = () => {
     setIsLoading(true); // Activar el estado de carga
-    socket.emit('generarCrucigrama', { codigoSala }, (response) => {
+    socket.emit('generarCrucigrama', { codigoSala, configuracion: configuracionCrucigrama }, (response) => {
       setIsLoading(false); // Desactivar el estado de carga
       if (response.error) {
         setError(response.error);
@@ -118,10 +146,10 @@ function App() {
         setError(response.error);
       } else {
         setCodigoSala(codigoSalaInput);
-        setJugadores(response.jugadores);
-        setTableroRespuestas(response.tableroRespuestas || []);
-        setTableroVisible(response.tableroVisible || []);
-        setPistas(response.pistas || []);
+        setJugadores(response.jugadores || []);
+        setTableroRespuestas(response.tableroRespuestas || null);
+        setTableroVisible(response.tableroVisible || null);
+        setPistas(response.pistas || null);
         setScreen('sala');
       }
     });
@@ -255,14 +283,29 @@ function App() {
     obtenerPalabraSeleccionada();
   };
 
+  const handleConfiguracionChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    const nuevaConfiguracion = {
+      ...configuracionCrucigrama,
+      [name]: type === 'checkbox' ? checked : parseInt(value, 10),
+    };
+    setConfiguracionCrucigrama(nuevaConfiguracion);
+  
+    // Emitir la configuración al backend automáticamente
+    socket.emit('guardarConfiguracion', { codigoSala, configuracionCrucigrama: nuevaConfiguracion }, (response) => {
+      if (response.error) {
+        setError(response.error);
+      } else {
+        console.log('Configuración guardada automáticamente');
+      }
+    });
+  };
+
   const verificarCasilla = () => {
     const { fila, columna } = casillaSeleccionada;
     const letraCorrecta = tableroRespuestas[fila][columna];
     const letraVisible = tableroVisible[fila][columna];
     const esCorrecto = letraVisible === letraCorrecta;
-
-    console.log(`letra correcta`, letraCorrecta);
-    console.log(`letra visible`, letraVisible);
 
     setAnimaciones([{ fila, columna, tipo: esCorrecto ? 'correcto' : 'error' }]);
 
@@ -383,6 +426,30 @@ function App() {
 
   return (
     <div className="App" onKeyDown={handleKeyDown} tabIndex={0}>
+      {mostrarModalDesconexion && (
+        <Modal
+          mensaje="¿Estás seguro de que deseas salir de la sala? Perderás tu progreso."
+          confirmar="Salir de la sala"
+          cancelar="Cancelar"
+          onConfirmar={() => {
+            setMostrarModalDesconexion(false);
+            salirSala();
+          }}
+          onCancelar={() => setMostrarModalDesconexion(false)}
+        />
+      )}
+      {mostrarModalConfirmacion && (
+        <Modal
+          mensaje="¿Estás seguro de que deseas generar un nuevo crucigrama? Esto eliminará el actual."
+          confirmar="Generar crucigrama"
+          cancelar="Cancelar"
+          onConfirmar={() => {
+            setMostrarModalConfirmacion(false);
+            iniciarGeneracionCrucigrama();
+          }}
+          onCancelar={() => setMostrarModalConfirmacion(false)}
+        />
+      )}
       {screen === 'initial' && (
         <div className="initial-screen">
           <input
@@ -406,7 +473,7 @@ function App() {
       {screen === 'sala' && (
         <>
           <div className="header-bar">
-            <button className="header-left" onClick={salirSala}>
+            <button className="header-left" onClick={() => setMostrarModalDesconexion(true)}>
               <div className="logo-circle"></div>
               <img src={logo} alt="Logo" className="logo" />
             </button>
@@ -420,7 +487,7 @@ function App() {
               </button>
 
               {/* Icono para salir de la sala */}
-              <button className="icon-button" onClick={salirSala}>
+              <button className="icon-button" onClick={() => setMostrarModalDesconexion(true)}>
                 <ExitIcon className="icon" />
               </button>
             </div>
@@ -494,7 +561,7 @@ function App() {
                               value={casilla === '#' ? '' : casilla}
                               onKeyDown={(e) => {
                                 const letra = e.key.toUpperCase();
-                            
+
                                 // Validar si es una letra o Backspace
                                 if (/^[A-ZÑÁÉÍÓÚÜ]$/.test(letra)) {
                                   e.preventDefault();
@@ -544,8 +611,6 @@ function App() {
                                   nuevoCrucigrama[filaIndex][columnaIndex] = '';
                                   setTableroVisible(nuevoCrucigrama);
                             
-                                  console.log(`Backspace presionado en [${filaIndex}, ${columnaIndex}]`);
-                            
                                   // Emitir el cambio al servidor
                                   socket.emit('actualizarCasilla', {
                                     codigoSala,
@@ -590,8 +655,6 @@ function App() {
                                   nuevoCrucigrama[filaIndex][columnaIndex] = letra || '';
                                   setTableroVisible(nuevoCrucigrama);
                             
-                                  console.log(`Estado actualizado de la casilla [${filaIndex}, ${columnaIndex}]: ${nuevoCrucigrama[filaIndex][columnaIndex]}`);
-                            
                                   // Emitir el cambio al servidor
                                   socket.emit('actualizarCasilla', {
                                     codigoSala,
@@ -613,9 +676,101 @@ function App() {
               )}
               <div className={`buttons-container ${!tableroVisible && !isLoading ? 'centered' : ''}`}>
                 {esAnfitrion && (
-                  <button onClick={generarCrucigrama} disabled={isLoading}>
-                    {isLoading ? (<LoadingIcon className="loading-icon"></LoadingIcon>) : ('Generar Crucigrama')}
+                  <div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      generarCrucigrama();
+                    }} 
+                    disabled={isLoading}
+                    className="generate-button"
+                  >
+                    {isLoading ? (
+                      <LoadingIcon className="loading-icon" />
+                    ) : (
+                      <>
+                        Generar Crucigrama
+                        <div
+                          className="settings-icon-container"
+                          onMouseEnter={(e) => {
+                            e.stopPropagation();
+                            setFormVisible(true);
+                          }}
+                          onMouseLeave={(e) => {
+                            e.stopPropagation();
+                            setFormVisible(false);
+                          }}
+                        >
+                          <SettingsIcon className="settings-icon" />
+                          {formVisible && (
+                            <form
+                              className="config-form"
+                              onClick={(e) => e.stopPropagation()}
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                              }}
+                            >
+                              <label>
+                                Filas:
+                                <input
+                                  type="number"
+                                  name="filas"
+                                  min="9"
+                                  max="21"
+                                  value={configuracionCrucigrama.filas}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    handleConfiguracionChange(e);
+                                  }}
+                                  onKeyDown={(e) => e.preventDefault()}
+                                />
+                              </label>
+                              <label>
+                                Columnas:
+                                <input
+                                  type="number"
+                                  name="columnas"
+                                  min="9"
+                                  max="21"
+                                  value={configuracionCrucigrama.columnas}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    handleConfiguracionChange(e);
+                                  }}
+                                  onKeyDown={(e) => e.preventDefault()}
+                                />
+                              </label>
+                              <label>
+                                <input
+                                  type="checkbox"
+                                  name="PalabrasColoquiales"
+                                  checked={configuracionCrucigrama.PalabrasColoquiales}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    handleConfiguracionChange(e);
+                                  }}
+                                />
+                                Palabras coloquiales
+                              </label>
+                              <label>
+                                <input
+                                  type="checkbox"
+                                  name="PalabrasEnDesuso"
+                                  checked={configuracionCrucigrama.PalabrasEnDesuso}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    handleConfiguracionChange(e);
+                                  }}
+                                />
+                                Palabras en desuso
+                              </label>
+                            </form>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </button>
+                </div>
                 )}
                 {tableroVisible && (
                   <>
@@ -625,6 +780,11 @@ function App() {
                   </>
                 )}
               </div>
+              {tableroVisible && (
+                <>
+                  <p className="help-text">Usa las flechas para moverte entre casillas y Tab para cambiar la orientación.</p>
+                </>
+              )}
             </div>
 
             <div className="tabs-container">

@@ -1,16 +1,27 @@
 const { obtenerPalabrasYDefiniciones } = require('./api');
 const { crearTablero } = require('./tablero');
 
-const generarCrucigrama = async () => {
+const generarCrucigrama = async (configuracion) => {
+  const { filas, columnas, PalabrasColoquiales, PalabrasEnDesuso } = configuracion;
+
   console.log('Iniciando la generación del crucigrama...');
 
   // Crear el tablero vacío
-  const tablero = crearTablero(13, 13);
+  const tablero = crearTablero(filas, columnas);
   console.log('Tablero vacío creado.');
 
   // Obtener palabras y definiciones
-  const palabrasYDefiniciones = await obtenerPalabrasYDefiniciones();
-  console.log(`Se obtuvieron ${palabrasYDefiniciones.length} palabras y definiciones.`);
+  let palabrasYDefiniciones = await obtenerPalabrasYDefiniciones();
+
+  // Filtrar palabras según la configuración
+  if (!configuracion.PalabrasEnDesuso) {
+    palabrasYDefiniciones = palabrasYDefiniciones.filter((p) => !p.Desuso);
+  }
+  if (!configuracion.PalabrasColoquiales) {
+    palabrasYDefiniciones = palabrasYDefiniciones.filter((p) => !p.Coloquial);
+  }
+
+  console.log(`Se obtuvieron ${palabrasYDefiniciones.length} palabras después del filtrado.`);
 
   // Generar un array de índices aleatorios
   const indicesAleatorios = Array.from({ length: palabrasYDefiniciones.length }, (_, i) => i).sort(() => Math.random() - 0.5);
