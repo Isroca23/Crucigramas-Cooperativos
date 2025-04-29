@@ -79,6 +79,12 @@ code {
   color: var(--color-dark);
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .header-right .icon-button {
   display: inline-flex;
   align-items: center;
