@@ -183,16 +183,6 @@ code {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
-  /* Calcular altura dinámica */
-  height: calc((100vh - var(--header-height)) * 0.9);
-  width: calc((100vh - var(--header-height)) * 0.9);
-
-  /* Asegurar que siempre respete las dimensiones */
-  min-height: calc((100vh - var(--header-height)) * 0.9);
-  min-width: calc((100vh - var(--header-height)) * 0.9);
-  max-height: calc((100vh - var(--header-height)) * 0.9);
-  max-width: calc((100vh - var(--header-height)) * 0.9);
 }
 
 .crossword-container .help-text {
@@ -439,6 +429,7 @@ code {
   margin-bottom: 5%;
   margin-right: 5%;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  height: auto;
 }
 
 .tabs {
@@ -472,6 +463,8 @@ code {
   flex: 1;
   padding: 1rem;
   background-color: var(--color-light);
+  height: auto;
+  overflow-y: scroll;
 }
 
 .tab-content ol {
