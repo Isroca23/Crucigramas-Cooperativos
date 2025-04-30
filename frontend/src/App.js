@@ -513,7 +513,7 @@ function App() {
               {tableroVisible && (
                 <div
                   className="crossword-grid"
-                  style={{gridTemplateColumns: `repeat(${tableroVisible[0].length}, 1fr)`,}}
+                  style={{gridTemplateColumns: `repeat(${tableroVisible[0].length}, 1fr)`, '--grid-rows': tableroVisible.length}}
                 >
                   {tableroVisible.map((fila, filaIndex) =>
                     fila.map((casilla, columnaIndex) => {

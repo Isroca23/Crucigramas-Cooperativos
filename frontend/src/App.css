@@ -1,16 +1,40 @@
-/* Importación de fuentes */
+/* 1. Importaciones */
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700&display=swap');
 
-/* Variables globales */
+/* 2. Variables globales */
 :root {
+  /* Colores */
   --color-bg: #EDEDE9;
-  --color-dark: #9F9890;
+  --color-dark: #9F9890; 
   --color-accent: #D5BDAF;
   --color-soft: #E3D5CA;
   --color-light: #F5EBE0;
+  --color-success: #28a745;
+  --color-error: #E53935;
+
+  /* Espaciado */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Bordes y sombras */
+  --border-radius: 4px;
+  --border-radius-lg: 8px;
+  --shadow-sm: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 4px 4px 8px rgba(0, 0, 0, 0.2);
+
+  /* Medidas layout */
+  --header-height: 8.5vh;
+  --subheader-height: 4vh;
+  --main-height: 87.5vh;
+  --crossword-container-height: 80.5vh;
+  --crossword-grid-height: 60vh;
 }
 
-/* Estilos globales */
+/* 3. Reset y estilos base */
 body {
   margin: 0;
   font-family: 'Urbanist', sans-serif;
@@ -22,10 +46,18 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+/* 4. Layout principal */
 .App {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  height: var(--main-height);
+  align-items: center;
 }
 
 .centered {
@@ -35,24 +67,19 @@ code {
   height: 100%;
 }
 
-/* Header principal */
+/* 5. Header */
 .header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-bg);
-  padding: 1.5rem 1.5rem;
+  padding: var(--spacing-lg);
   border-bottom: 1px solid var(--color-dark);
-
-  --header-height: 7.5rem;
+  height: var(--header-height);
 }
 
 .header-left {
   position: relative;
-}
-
-.header-left:hover .logo-circle {
-  background-color: var(--color-accent);
 }
 
 .logo {
@@ -73,6 +100,10 @@ code {
   z-index: 0;
 }
 
+.header-left:hover .logo-circle {
+  background-color: var(--color-accent);
+}
+
 .header-center h1 {
   margin: 0;
   font-size: 1.8rem;
@@ -91,7 +122,7 @@ code {
   justify-content: center;
   width: 30px;
   height: 30px;
-  margin-left: 1rem;
+  margin-left: var(--spacing-md);
 }
 
 .header-right .icon-button:hover {
@@ -105,21 +136,23 @@ code {
   transition: fill 0.2s, transform 0.2s;
 }
 
-/* Sub-header (jugador + ID sala) */
+/* 6. Sub-header */
 .sub-header {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 1.5rem;
+  padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-bg);
   font-size: 1rem;
   border-bottom: 1px solid var(--color-dark);
+  height: var(--subheader-height);
+  align-items: center;
 }
 
 .copy-code {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
   position: relative;
 }
 
@@ -128,31 +161,31 @@ code {
   height: 1rem;
 }
 
-/* Pantalla inicial (inputs + botones) */
+/* 7. Pantalla inicial */
 .initial-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: var(--spacing-xl);
 }
 
 .initial-screen input {
-  margin: 0.5rem 0;
-  padding: 0.5rem;
+  margin: var(--spacing-sm) 0;
+  padding: var(--spacing-sm);
   border: 1px solid var(--color-dark);
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   font-size: 1rem;
   width: 250px;
   background-color: var(--color-light);
 }
 
 .initial-screen button {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   background-color: var(--color-dark);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   font-size: 1rem;
   cursor: pointer;
   color: var(--color-bg);
@@ -163,26 +196,20 @@ code {
   background-color: var(--color-accent);
 }
 
-/* Contenedor principal de crucigrama + tabs */
-.main-content {
-  display: flex;
-  flex: 1;
-  padding: 1rem;
-  gap: 1rem;
-}
-
-/* Crucigrama */
+/* 8. Contenedor del crucigrama */
 .crossword-container {
-  flex: 0;
+  flex: 0 1 auto;
   background-color: var(--color-dark);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin: 5%;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin: 3.5vh;
+  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: var(--crossword-container-height);
+  gap: 5vh;
 }
 
 .crossword-container .help-text {
@@ -201,18 +228,15 @@ code {
   display: grid;
   gap: 5px;
   margin: auto;
+  height: var(--crossword-grid-height);
 }
 
-/* Estilo para el mensaje de error */
-.error-message {
-  color: red;
-  margin-top: 0.5rem;
-}
-
-/* Casillas del crucigrama */
+/* 9. Casillas del crucigrama */
 .casilla {
-  width: 30px;
-  height: 30px;
+  aspect-ratio: 1 / 1;
+  height: calc((60vh - (var(--grid-rows) - 1) * 5px) / var(--grid-rows));
+  max-height: 3vw;
+  border-radius: 1px;
   font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
@@ -224,40 +248,6 @@ code {
   position: relative;
 }
 
-/* Subclases para animaciones */
-.casilla.correcto {
-  animation: ola 0.5s ease-in-out;
-  animation-delay: var(--animation-delay);
-  color: #28a745;
-}
-
-.casilla.error {
-  animation: temblor 1s ease-in-out;
-  color: #E53935 ;
-}
-
-/* Clases adicionales */
-
-.casilla.seleccionada {
-  background-color: var(--color-accent) !important;
-  border: 3px solid var(--color-accent) !important;
-  transform: scale(1.1);
-}
-
-.casilla.parte-de-palabra {
-  background-color: var(--color-soft) !important;
-}
-
-.casilla.negra {
-  background-color: var(--color-dark) !important;
-  pointer-events: none;
-}
-
-.casilla.vacia {
-  background-color: var(--color-bg) !important;
-}
-
-/* Input dentro de las casillas */
 .casilla-input {
   width: 100%;
   height: 100%;
@@ -271,153 +261,38 @@ code {
   caret-color: transparent;
 }
 
-/* Lista de definiciones */
-.definition-list {
-  margin-top: 0.5rem;
-  padding-left: 1.5rem;
+/* Estados de casillas */
+.casilla.negra {
+  background-color: var(--color-dark) !important;
+  pointer-events: none;
 }
 
-.definition-list li {
-  margin-bottom: 0.5rem;
-  line-height: 1.5;
+.casilla.vacia {
+  background-color: var(--color-bg) !important;
 }
 
-/* Botones */
-.buttons-container {
-  width: 100%;
-  height: 100%;
-  margin-top: 1rem;
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
+.casilla.seleccionada {
+  background-color: var(--color-accent) !important;
+  border: 3px solid var(--color-accent) !important;
+  transform: scale(1.1);
 }
 
-.buttons-container button {
-  position: relative;
-  padding: 0.5rem 1rem;
-  background-color: var(--color-soft);
-  color: var(--color-dark);
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.2s;
-  font-weight: bold;
+.casilla.parte-de-palabra {
+  background-color: var(--color-soft) !important;
 }
 
-.buttons-container button:hover {
-  background-color: var(--color-accent);
-  transform: scale(1.05);
+.casilla.correcto {
+  animation: ola 0.5s ease-in-out;
+  animation-delay: var(--animation-delay);
+  color: var(--color-success);
 }
 
-.buttons-container button:disabled {
-  background-color: var(--color-accent);
-  cursor: not-allowed;
+.casilla.error {
+  animation: temblor 1s ease-in-out;
+  color: var(--color-error);
 }
 
-/* Botón de generar crucigrama */
-.generate-button {
-  position: relative;
-  padding: 0.5rem 1rem;
-  background-color: var(--color-dark);
-  color: var(--color-bg);
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s, transform 0.2s;
-}
-
-.generate-button:hover {
-  background-color: var(--color-accent);
-}
-
-/* Formulario configuración */
-.buttons-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.settings-icon {
-  width: 15px;
-  height: 15px;
-  fill: var(--color-light);
-  transition: fill 0.2s, transform 0.3s ease-in-out;
-}
-
-.settings-icon-container {
-  position: absolute;
-  top: 0.2rem;
-  right: 0.2rem;
-  cursor: pointer;
-}
-
-.settings-icon-container:hover .settings-icon {
-  transform: rotate(180deg);
-}
-
-.config-form {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  position: absolute;
-  bottom: 100%;
-  background-color: var(--color-light);
-  border-radius: 8px;
-  padding: 0.5rem;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-  height: auto;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.config-form label {
-  display: flex;
-  align-items: center;
-  font-size: 1rem;
-  color: var(--color-dark);
-  text-align: left;
-}
-
-.config-form input[type="number"]::-webkit-inner-spin-button,
-.config-form input[type="number"]::-webkit-outer-spin-button {
-  appearance: auto;
-}
-
-.config-form input[type="number"] {
-  width: 3rem;
-  padding: 0.3rem;
-  outline: none;
-  border-radius: 4px;
-  background-color: var(--color-accent);
-  font-size: 1rem;
-  color: var(--color-light);
-  pointer-events: auto;
-  caret-color: transparent;
-}
-
-.config-form input[type="checkbox"] {
-  accent-color: var(--color-accent);
-  margin-right: 0.5rem;
-}
-
-.config-form button {
-  position: relative;
-  cursor: pointer;
-  background-color: var(--color-soft);
-  color: var(--color-dark);
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s, transform 0.2s;
-}
-
-/* Tabs */
+/* 10. Tabs */
 .tabs-container {
   flex: 2;
   background-color: var(--color-dark);
@@ -425,11 +300,11 @@ code {
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  margin-right: 5%;
+  margin-top: 3.5vh;
+  margin-bottom: 3.5vh;
+  margin-right: 3.5vh;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-  height: auto;
+  height: 80.5vh;
 }
 
 .tabs {
@@ -478,39 +353,132 @@ code {
   line-height: 1.5;
 }
 
-/* Animación de ola (correcto) */
-@keyframes ola {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-0.5rem);
-  }
-  100% {
-    transform: translateY(0);
-  }
+/* 11. Definiciones */
+.definition-list {
+  margin-top: var(--spacing-sm);
+  padding-left: var(--spacing-lg);
 }
 
-/* Animación de temblor (error) */
-@keyframes temblor {
-  0% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-10deg);
-  }
-  50% {
-    transform: rotate(10deg);
-  }
-  75% {
-    transform: rotate(-10deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
+.definition-list li {
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.5;
 }
 
-/* Estilos de modal */
+/* 12. Botones y controles */
+.buttons-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: space-between;
+}
+
+.crossword-container .buttons-container {
+  margin-top: auto;
+}
+
+.buttons-container button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-soft);
+  color: var(--color-dark);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: bold;
+}
+
+.buttons-container button:hover {
+  background-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.buttons-container button:disabled {
+  background-color: var(--color-accent);
+  cursor: not-allowed;
+}
+
+.generate-button {
+  position: relative;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-dark);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.generate-button:hover {
+  background-color: var(--color-accent);
+}
+
+/* 13. Configuración */
+.config-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+  position: absolute;
+  bottom: 100%;
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-sm);
+  box-shadow: var(--shadow-md);
+  height: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.config-form label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: var(--color-dark);
+  text-align: left;
+}
+
+.config-form input[type="number"]::-webkit-inner-spin-button,
+.config-form input[type="number"]::-webkit-outer-spin-button {
+  appearance: auto;
+}
+
+.config-form input[type="number"] {
+  width: 3rem;
+  padding: 0.3rem;
+  outline: none;
+  border-radius: var(--border-radius);
+  background-color: var(--color-accent);
+  font-size: 1rem;
+  color: var(--color-light);
+  pointer-events: auto;
+  caret-color: transparent;
+}
+
+.config-form input[type="checkbox"] {
+  accent-color: var(--color-accent);
+  margin-right: var(--spacing-sm);
+}
+
+.settings-icon {
+  width: 15px;
+  height: 15px;
+  fill: var(--color-light);
+  transition: transform 0.3s ease-in-out;
+}
+
+.settings-icon-container {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  cursor: pointer;
+}
+
+.settings-icon-container:hover .settings-icon {
+  transform: rotate(180deg);
+}
+
+/* 14. Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -527,43 +495,74 @@ code {
 .modal-content {
   background-color: var(--color-dark);
   color: var(--color-bg);
-  padding: 2rem;
-  border-radius: 8px;
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
   text-align: center;
   width: 20%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-buttons {
   display: flex;
   justify-content: space-around;
-  margin-top: 1rem;
+  margin-top: var(--spacing-md);
 }
 
-.confirm-button {
-  background-color: var(--color-light);
-  color: var(--color-dark);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
+.confirm-button,
 .cancel-button {
   background-color: var(--color-light);
   color: var(--color-dark);
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 1rem;
 }
 
-.confirm-button:hover {
+.confirm-button:hover,
+.cancel-button:hover {
   background-color: var(--color-accent);
 }
 
-.cancel-button:hover {
-  background-color: var(--color-accent);
+/* 15. Animaciones */
+@keyframes ola {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-0.5rem); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes temblor {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+  75% { transform: rotate(-10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* 16. Utilidades y clases de ayuda */
+.error-message {
+  color: var(--color-error);
+  margin-top: var(--spacing-sm);
+}
+
+/* 17. Estilos redundantes (mantenidos por compatibilidad) */
+.buttons-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.config-form button {
+  position: relative;
+  cursor: pointer;
+  background-color: var(--color-soft);
+  color: var(--color-dark);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: var(--shadow-sm);
 }
