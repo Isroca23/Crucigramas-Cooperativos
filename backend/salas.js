@@ -15,13 +15,19 @@ const crearSala = (socket, { nombre, codigoSalaInput }, callback) => {
     tableroRespuestas: null,
     pistas: null,
     tableroVisible: null,
+    configuracionCrucigrama: {
+      filas: 13,
+      columnas: 13,
+      PalabrasColoquiales: true,
+      PalabrasEnDesuso: true,
+    }
   };
 
   socket.join(codigoSala);
   console.log(`Sala creada: ${codigoSala}`);
   socket.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
 
-  callback({ codigoSala, jugador });
+  callback({ codigoSala, jugador, configuracionCrucigrama: salas[codigoSala].configuracionCrucigrama });
 };
 
 const unirseSala = (socket, { codigoSala, nombre }, callback) => {
@@ -42,6 +48,7 @@ const unirseSala = (socket, { codigoSala, nombre }, callback) => {
     tableroRespuestas: salas[codigoSala].tableroRespuestas,
     tableroVisible: salas[codigoSala].tableroVisible,
     pistas: salas[codigoSala].pistas,
+    configuracionCrucigrama: salas[codigoSala].configuracionCrucigrama
   });
 
   socket.to(codigoSala).emit('jugadoresActualizados', salas[codigoSala].jugadores);
@@ -142,7 +149,9 @@ const guardarConfiguracion = (socket, { codigoSala, configuracionCrucigrama }, c
   }
 
   // Actualizar la configuración de la sala
-  sala.configuracionCrucigrama = { ...sala.configuracionCrucigrama, ...configuracionCrucigrama };
+  sala.configuracionCrucigrama = configuracionCrucigrama;
+
+  socket.to(codigoSala).emit('configuracionActualizada', configuracionCrucigrama);
 
   callback({ success: true });
 };

@@ -49,6 +49,11 @@ function App() {
       setJugadores(jugadoresActualizados);
     });
 
+    // Escuchar eventos de actualización de configuración
+    socket.on('configuracionActualizada', (nuevaConfiguracion) => {
+      setConfiguracionCrucigrama(nuevaConfiguracion);
+    });
+
     // Escuchar eventos de actualización de tableros
     socket.on('tablerosActualizados', ({ tableroRespuestas, tableroVisible, pistas }) => {
       setTableroRespuestas(tableroRespuestas);
@@ -81,6 +86,7 @@ function App() {
     return () => {
       socket.off('jugadoresActualizados');
       socket.off('tablerosActualizados');
+      socket.off('configuracionActualizada');
       socket.off('connect_error');
       socket.off('casillaActualizada');
       window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -165,6 +171,12 @@ function App() {
     setTableroRespuestas(null);
     setTableroVisible(null);
     setPistas(null);
+    setConfiguracionCrucigrama({
+      filas: 13,
+      columnas: 13,
+      PalabrasColoquiales: true,
+      PalabrasEnDesuso: true,
+    });
   };
 
   const esAnfitrion = jugadores.length > 0 && jugadores[0].id === socket.id;
@@ -374,29 +386,35 @@ function App() {
 
   const obtenerPalabraSeleccionada = () => {
     if (!tableroRespuestas) return [];
+
     const { fila, columna } = casillaSeleccionada;
     let palabra = [];
-    if (orientacion === 'horizontal') {
-      // Obtener palabra horizontal
-      let inicio = columna;
-      while (inicio > 0 && tableroRespuestas[fila][inicio - 1] !== '#') inicio--;
-      let fin = columna;
-      while (fin < tableroRespuestas[fila].length && tableroRespuestas[fila][fin] !== '#') fin++;
-      palabra = tableroRespuestas[fila].slice(inicio, fin).map((_, index) => ({
-        fila,
-        columna: inicio + index,
-      }));
-    } else {
-      // Obtener palabra vertical
-      let inicio = fila;
-      while (inicio > 0 && tableroRespuestas[inicio - 1][columna] !== '#') inicio--;
-      let fin = fila;
-      while (fin < tableroRespuestas.length && tableroRespuestas[fin][columna] !== '#') fin++;
-      palabra = tableroRespuestas.slice(inicio, fin).map((_, index) => ({
-        fila: inicio + index,
-        columna,
-      }));
+
+    if (fila >= 0 && fila < tableroRespuestas.length && columna >= 0 && columna < tableroRespuestas[0].length) {
+      
+      if (orientacion === 'horizontal') {
+        // Obtener palabra horizontal
+        let inicio = columna;
+        while (inicio > 0 && tableroRespuestas[fila][inicio - 1] !== '#') inicio--;
+        let fin = columna;
+        while (fin < tableroRespuestas[fila].length && tableroRespuestas[fila][fin] !== '#') fin++;
+        palabra = tableroRespuestas[fila].slice(inicio, fin).map((_, index) => ({
+          fila,
+          columna: inicio + index,
+        }));
+      } else {
+        // Obtener palabra vertical
+        let inicio = fila;
+        while (inicio > 0 && tableroRespuestas[inicio - 1][columna] !== '#') inicio--;
+        let fin = fila;
+        while (fin < tableroRespuestas.length && tableroRespuestas[fin][columna] !== '#') fin++;
+        palabra = tableroRespuestas.slice(inicio, fin).map((_, index) => ({
+          fila: inicio + index,
+          columna,
+        }));
+      }
     }
+    
     return palabra;
   };
 
