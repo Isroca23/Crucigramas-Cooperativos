@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import Modal from './Modal.js';
+import React, { useState, useEffect, } from 'react';
+import Header from './componentes/Header.js';
+import SubHeader from './componentes/SubHeader.js';
+import InitialScreen from './componentes/InitialScreen.js';
+import TabsContainer from './componentes/TabsContainer.js';
+import Modal from './componentes/Modal.js';
 import './App.css';
 import io from 'socket.io-client';
-import logo from './img/Logo.png';
-import { ReactComponent as CopyIcon } from './img/Copy.svg';
-import { ReactComponent as CopiedIcon } from './img/CopyChecked.svg';
-import { ReactComponent as GroupIcon } from './img/GroupRounded.svg';
-import { ReactComponent as ExitIcon } from './img/ExitBold.svg';
 import { ReactComponent as LoadingIcon } from './img/Loading.svg';
 import { ReactComponent as SettingsIcon } from './img/Settings.svg';
 
@@ -438,6 +437,7 @@ function App() {
           onCancelar={() => setMostrarModalDesconexion(false)}
         />
       )}
+
       {mostrarModalConfirmacion && (
         <Modal
           mensaje="¿Estás seguro de que deseas generar un nuevo crucigrama? Esto eliminará el actual."
@@ -450,66 +450,30 @@ function App() {
           onCancelar={() => setMostrarModalConfirmacion(false)}
         />
       )}
+
       {screen === 'initial' && (
-        <div className="initial-screen">
-          <input
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Tu Nombre"
-          />
-          <button onClick={crearSala}>Crear Sala</button>
-          <input
-            type="text"
-            value={codigoSalaInput}
-            onChange={(e) => setCodigoSalaInput(e.target.value)}
-            placeholder="Código de Sala"
-          />
-          <button onClick={unirseSala}>Unirse a Sala</button>
-          {error && <p className="error-message">{error}</p>}
-        </div>
+        <InitialScreen
+          nombre={nombre}
+          onNombreChange={setNombre}
+          codigoSalaInput={codigoSalaInput}
+          onCodigoChange={setCodigoSalaInput}
+          onCrearSala={crearSala}
+          onUnirseSala={unirseSala}
+          error={error}
+        />
       )}
 
       {screen === 'sala' && (
         <>
-          <div className="header-bar">
-            <button className="header-left" onClick={() => setMostrarModalDesconexion(true)}>
-              <div className="logo-circle"></div>
-              <img src={logo} alt="Logo" className="logo" />
-            </button>
-            <div className="header-center">
-              <h1><strong>Crucigramas Cooperativos</strong></h1>
-            </div>
-            <div className="header-right">
-              {/* Icono para ver jugadores */}
-              <button className="icon-button" onClick={() => {/* Lógica para ver jugadores */}}>
-                <GroupIcon className="icon" />
-              </button>
-
-              {/* Icono para salir de la sala */}
-              <button className="icon-button" onClick={() => setMostrarModalDesconexion(true)}>
-                <ExitIcon className="icon" />
-              </button>
-            </div>
-          </div>
-
-          {/* Sub-header */}
-          <div className="sub-header">
-            <span><strong>Jugador:</strong> {nombre}</span>
-            <span
-              className="copy-code"
-              onClick={copiarCodigoSala}
-            >
-              <span className="copy-icon-wrapper">
-                {!showCopiedIcon ? <CopyIcon /> : <CopiedIcon />}
-              </span>
-              <strong>ID Sala:</strong> {codigoSala}
-            </span>
-          </div>
-
-          {/* Contenedores principales */}
+          <Header onExit={() => setMostrarModalDesconexion(true)} />
+          <SubHeader
+            nombre={nombre}
+            codigoSala={codigoSala}
+            showCopiedIcon={showCopiedIcon}
+            onCopy={copiarCodigoSala}
+          />
           <div className="main-content">
-            <div className="crossword-container">
+          <div className="crossword-container">
               {tableroVisible && (
                 <div
                   className="crossword-grid"
@@ -530,21 +494,10 @@ function App() {
                       );
 
                       return (
-                        <div
-                          key={`${filaIndex}-${columnaIndex}`}
+                        <div key={`${filaIndex}-${columnaIndex}`} style={{ '--animation-delay': animacion?.delay || '0s', }} onClick={() => handleCasillaClick(filaIndex, columnaIndex)}
                           className={`casilla ${
-                            casilla === '#'
-                              ? 'negra'
-                              : esSeleccionada
-                              ? 'seleccionada'
-                              : esParteDePalabra
-                              ? 'parte-de-palabra'
-                              : 'vacia'
+                            casilla === '#' ? 'negra' : esSeleccionada ? 'seleccionada' : esParteDePalabra? 'parte-de-palabra' : 'vacia'
                             } ${animacion ? (animacion.tipo === 'correcto' ? 'correcto' : 'error') : ''}`}
-                          style={{
-                            '--animation-delay': animacion?.delay || '0s',
-                          }}
-                          onClick={() => handleCasillaClick(filaIndex, columnaIndex)}
                           onAnimationEnd={() => {
                             // Eliminar la animación de la casilla cuando termine
                             setAnimaciones((prevAnimaciones) =>
@@ -555,10 +508,7 @@ function App() {
                           }}
                         >
                           {casilla === '#' ? '' : esSeleccionada ? (
-                            <input
-                              type="text"
-                              maxLength="1"
-                              value={casilla === '#' ? '' : casilla}
+                            <input type="text" maxLength="1" value={casilla === '#' ? '' : casilla}
                               onKeyDown={(e) => {
                                 const letra = e.key.toUpperCase();
 
@@ -571,34 +521,23 @@ function App() {
                                   setTableroVisible(nuevoCrucigrama);
                             
                                   // Emitir el cambio al servidor
-                                  socket.emit('actualizarCasilla', {
-                                    codigoSala,
-                                    fila: filaIndex,
-                                    columna: columnaIndex,
-                                    letra,
-                                  });
+                                  socket.emit('actualizarCasilla', { codigoSala, fila: filaIndex, columna: columnaIndex, letra, });
                             
                                   // Mover a la siguiente casilla
                                   if (orientacion === 'horizontal') {
                                     let nuevaColumna = columnaIndex + 1;
-                                    while (
-                                      nuevaColumna < tableroRespuestas[filaIndex].length &&
-                                      tableroRespuestas[filaIndex][nuevaColumna] === '#'
-                                    ) {
-                                      nuevaColumna++;
-                                    }
+
+                                    while ( nuevaColumna < tableroRespuestas[filaIndex].length && tableroRespuestas[filaIndex][nuevaColumna] === '#'
+                                    ) { nuevaColumna++; }
                                     if (nuevaColumna < tableroRespuestas[filaIndex].length) {
                                       setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
                                       intentarSeleccionarPalabra(filaIndex, nuevaColumna);
                                     }
                                   } else {
                                     let nuevaFila = filaIndex + 1;
-                                    while (
-                                      nuevaFila < tableroRespuestas.length &&
-                                      tableroRespuestas[nuevaFila][columnaIndex] === '#'
-                                    ) {
-                                      nuevaFila++;
-                                    }
+
+                                    while ( nuevaFila < tableroRespuestas.length && tableroRespuestas[nuevaFila][columnaIndex] === '#'
+                                    ) { nuevaFila++; }
                                     if (nuevaFila < tableroRespuestas.length) {
                                       setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
                                       intentarSeleccionarPalabra(nuevaFila, columnaIndex);
@@ -612,34 +551,24 @@ function App() {
                                   setTableroVisible(nuevoCrucigrama);
                             
                                   // Emitir el cambio al servidor
-                                  socket.emit('actualizarCasilla', {
-                                    codigoSala,
-                                    fila: filaIndex,
-                                    columna: columnaIndex,
-                                    letra: '',
-                                  });
+                                  socket.emit('actualizarCasilla', { codigoSala, fila: filaIndex, columna: columnaIndex, letra: '', });
                             
                                   // Mover a la casilla anterior
                                   if (orientacion === 'horizontal') {
                                     let nuevaColumna = columnaIndex - 1;
-                                    while (
-                                      nuevaColumna >= 0 &&
-                                      tableroRespuestas[filaIndex][nuevaColumna] === '#'
-                                    ) {
-                                      nuevaColumna--;
-                                    }
+
+                                    while ( nuevaColumna >= 0 && tableroRespuestas[filaIndex][nuevaColumna] === '#'
+                                    ) { nuevaColumna--; }
                                     if (nuevaColumna >= 0) {
                                       setCasillaSeleccionada({ fila: filaIndex, columna: nuevaColumna });
                                       intentarSeleccionarPalabra(filaIndex, nuevaColumna);
                                     }
+
                                   } else {
                                     let nuevaFila = filaIndex - 1;
-                                    while (
-                                      nuevaFila >= 0 &&
-                                      tableroRespuestas[nuevaFila][columnaIndex] === '#'
-                                    ) {
-                                      nuevaFila--;
-                                    }
+
+                                    while ( nuevaFila >= 0 && tableroRespuestas[nuevaFila][columnaIndex] === '#'
+                                    ) { nuevaFila--; }
                                     if (nuevaFila >= 0) {
                                       setCasillaSeleccionada({ fila: nuevaFila, columna: columnaIndex });
                                       intentarSeleccionarPalabra(nuevaFila, columnaIndex);
@@ -656,12 +585,7 @@ function App() {
                                   setTableroVisible(nuevoCrucigrama);
                             
                                   // Emitir el cambio al servidor
-                                  socket.emit('actualizarCasilla', {
-                                    codigoSala,
-                                    fila: filaIndex,
-                                    columna: columnaIndex,
-                                    letra,
-                                  });
+                                  socket.emit('actualizarCasilla', { codigoSala, fila: filaIndex, columna: columnaIndex, letra, });
                                 }
                               }}
                               className="casilla-input"
@@ -677,90 +601,44 @@ function App() {
               <div className={`buttons-container ${!tableroVisible && !isLoading ? 'centered' : ''}`}>
                 {esAnfitrion && (
                   <div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      generarCrucigrama();
-                    }} 
-                    disabled={isLoading}
-                    className="generate-button"
+                  <button disabled={isLoading} className="generate-button"
+                    onClick={(e) => { e.stopPropagation(); generarCrucigrama(); }} 
                   >
                     {isLoading ? (
                       <LoadingIcon className="loading-icon" />
                     ) : (
                       <>
                         Generar Crucigrama
-                        <div
-                          className="settings-icon-container"
-                          onMouseEnter={(e) => {
-                            e.stopPropagation();
-                            setFormVisible(true);
-                          }}
-                          onMouseLeave={(e) => {
-                            e.stopPropagation();
-                            setFormVisible(false);
-                          }}
+                        <div className="settings-icon-container"
+                          onMouseEnter={(e) => { e.stopPropagation(); setFormVisible(true); }}
+                          onMouseLeave={(e) => { e.stopPropagation(); setFormVisible(false); }}
                         >
                           <SettingsIcon className="settings-icon" />
                           {formVisible && (
-                            <form
-                              className="config-form"
-                              onClick={(e) => e.stopPropagation()}
-                              onSubmit={(e) => {
-                                e.preventDefault();
-                              }}
-                            >
+                            <form className="config-form" onClick={(e) => e.stopPropagation() } onSubmit={(e) => { e.preventDefault(); }}>
                               <label>
                                 Filas:
-                                <input
-                                  type="number"
-                                  name="filas"
-                                  min="9"
-                                  max="21"
-                                  value={configuracionCrucigrama.filas}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    handleConfiguracionChange(e);
-                                  }}
+                                <input type="number" name="filas" min="9" max="21" value={configuracionCrucigrama.filas}
+                                  onChange={(e) => { e.stopPropagation(); handleConfiguracionChange(e); }}
                                   onKeyDown={(e) => e.preventDefault()}
                                 />
                               </label>
                               <label>
                                 Columnas:
-                                <input
-                                  type="number"
-                                  name="columnas"
-                                  min="9"
-                                  max="21"
-                                  value={configuracionCrucigrama.columnas}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    handleConfiguracionChange(e);
-                                  }}
+                                <input type="number" name="columnas" min="9" max="21" value={configuracionCrucigrama.columnas}
+                                  onChange={(e) => { e.stopPropagation(); handleConfiguracionChange(e); }}
                                   onKeyDown={(e) => e.preventDefault()}
                                 />
                               </label>
                               <label>
-                                <input
-                                  type="checkbox"
-                                  name="PalabrasColoquiales"
-                                  checked={configuracionCrucigrama.PalabrasColoquiales}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    handleConfiguracionChange(e);
-                                  }}
+                                <input type="checkbox" name="PalabrasColoquiales" checked={configuracionCrucigrama.PalabrasColoquiales}
+                                  onChange={(e) => { e.stopPropagation(); handleConfiguracionChange(e); }}
                                 />
                                 Palabras coloquiales
                               </label>
                               <label>
-                                <input
-                                  type="checkbox"
-                                  name="PalabrasEnDesuso"
-                                  checked={configuracionCrucigrama.PalabrasEnDesuso}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    handleConfiguracionChange(e);
-                                  }}
+                                <input type="checkbox" name="PalabrasEnDesuso" checked={configuracionCrucigrama.PalabrasEnDesuso}
+                                  onChange={(e) => { e.stopPropagation(); handleConfiguracionChange(e); }}
                                 />
                                 Palabras en desuso
                               </label>
@@ -786,50 +664,11 @@ function App() {
                 </>
               )}
             </div>
-
-            <div className="tabs-container">
-              <div className="tabs">
-                <button
-                  className={pestanaActiva === 'palabras' ? 'tab active' : 'tab'}
-                  onClick={() => setPestanaActiva('palabras')}
-                >
-                  Palabras
-                </button>
-                <button
-                  className={pestanaActiva === 'chat' ? 'tab active' : 'tab'}
-                  onClick={() => setPestanaActiva('chat')}
-                >
-                  Chat
-                </button>
-                <button
-                  className={pestanaActiva === 'estadisticas' ? 'tab active' : 'tab'}
-                  onClick={() => setPestanaActiva('estadisticas')}
-                >
-                  Estadísticas
-                </button>
-              </div>
-
-              <div className="tab-content">
-                {pestanaActiva === 'palabras' && (
-                  <div>
-                    {definicionSeleccionada ? (
-                      <div>
-                        <strong>Definiciones:</strong>
-                        <ol className="definition-list">
-                          {definicionSeleccionada.map((definicion, index) => (
-                            <li key={index}>{definicion}</li>
-                          ))}
-                        </ol>
-                      </div>
-                    ) : (
-                      <p>Selecciona una palabra para ver sus definiciones.</p>
-                    )}
-                  </div>
-                )}
-                {pestanaActiva === 'chat' && <p>Aquí estará el chat.</p>}
-                {pestanaActiva === 'estadisticas' && <p>Aquí se mostrarán las estadísticas.</p>}
-              </div>
-            </div>
+            <TabsContainer
+              pestanaActiva={pestanaActiva}
+              onTabChange={setPestanaActiva}
+              definicionSeleccionada={definicionSeleccionada}
+            />
           </div>
         </>
       )}
