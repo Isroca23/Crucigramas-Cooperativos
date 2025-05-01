@@ -1,22 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from '../img/Logo.png';
 import { ReactComponent as GroupIcon } from '../img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from '../img/ExitBold.svg';
 
-const Header = ({ onExit }) => {
+const Header = ({ onExit, jugadores }) => {
+  const [showUsers, setShowUsers] = useState(false);
+  
   return (
     <div className="header-bar">
       <button className="header-left" onClick={onExit}>
-        <div className="logo-circle"></div>
         <img src={logo} alt="Logo" className="logo" />
       </button>
       <div className="header-center">
         <h1><strong>Crucigramas Cooperativos</strong></h1>
       </div>
       <div className="header-right">
-        <button className="icon-button">
-          <GroupIcon className="icon" />
-        </button>
+      <div className="users-dropdown">
+          <button 
+            className="icon-button"
+            onMouseEnter={() => setShowUsers(true)}
+            onMouseLeave={() => setShowUsers(false)}
+          >
+            <GroupIcon className="icon" />
+          </button>
+          {showUsers && (
+            <div className="users-menu">
+              <h3><b>Jugadores conectados:</b></h3>
+              <ul>
+                {jugadores.map(jugador => (
+                  <li key={jugador.id}>{jugador.nombre} <p>({jugador.id})</p></li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
         <button className="icon-button" onClick={onExit}>
           <ExitIcon className="icon" />
         </button>

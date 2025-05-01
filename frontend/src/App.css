@@ -27,11 +27,11 @@
   --shadow-lg: 4px 4px 8px rgba(0, 0, 0, 0.2);
 
   /* Medidas layout */
-  --header-height: 8.5vh;
-  --subheader-height: 4vh;
-  --main-height: 87.5vh;
-  --crossword-container-height: 80.5vh;
-  --crossword-grid-height: 60vh;
+  --header-height: 11.5vh;
+  --subheader-height: 5vh;
+  --main-height: 83.5vh;
+  --container-height: 76.5vh;
+  --crossword-grid-height: 51.5vh;
 }
 
 /* 3. Reset y estilos base */
@@ -80,33 +80,26 @@ code {
 
 .header-left {
   position: relative;
+  margin: 3.5vh 0vh;
+  padding: 0.5vh;
+  z-index: 2;
+  background-color: var(--color-dark);
+  border-radius: 100%;
 }
 
 .logo {
-  height: 2.5rem;
+  height: 4vh;
   position: relative;
   z-index: 1;
 }
 
-.logo-circle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 3.5rem;
-  height: 3.5rem;
-  background-color: var(--color-dark);
-  border-radius: 50%;
-  z-index: 0;
-}
-
-.header-left:hover .logo-circle {
+.header-left:hover{
   background-color: var(--color-accent);
 }
 
 .header-center h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: var(--color-dark);
 }
 
@@ -203,12 +196,12 @@ code {
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
   margin: 3.5vh;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: var(--crossword-container-height);
+  height: var(--container-height);
   gap: 5vh;
 }
 
@@ -234,7 +227,7 @@ code {
 /* 9. Casillas del crucigrama */
 .casilla {
   aspect-ratio: 1 / 1;
-  height: calc((60vh - (var(--grid-rows) - 1) * 5px) / var(--grid-rows));
+  height: calc((var(--crossword-grid-height) - (var(--grid-rows) - 1) * 5px) / var(--grid-rows));
   max-height: 3vw;
   border-radius: 1px;
   font-size: 1rem;
@@ -304,7 +297,7 @@ code {
   margin-bottom: 3.5vh;
   margin-right: 3.5vh;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-  height: 80.5vh;
+  height: var(--container-height);
 }
 
 .tabs {
@@ -425,7 +418,7 @@ code {
   background-color: var(--color-light);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-sm);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   height: auto;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -498,13 +491,14 @@ code {
   padding: var(--spacing-xl);
   border-radius: var(--border-radius-lg);
   text-align: center;
-  width: 20%;
+  width: auto;
   box-shadow: var(--shadow-lg);
 }
 
 .modal-buttons {
   display: flex;
   justify-content: space-around;
+  gap: 5vw;
   margin-top: var(--spacing-md);
 }
 
@@ -565,4 +559,55 @@ code {
   cursor: pointer;
   font-weight: bold;
   box-shadow: var(--shadow-sm);
+}
+
+/* 18. Usuarios */
+.users-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.users-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 15vw;
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-sm);
+  box-shadow: var(--shadow-lg);
+  height: auto;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 100;
+}
+
+.users-menu h3 {
+  color: var(--color-dark);
+  margin: 0 0 var(--spacing-sm) 0;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-soft);
+}
+
+.users-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.users-menu li {
+  color: var(--color-dark);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-xs);
+  transition: background-color 0.2s;
+}
+
+.users-menu p {
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.users-dropdown:hover .icon {
+  fill: var(--color-accent);
+  transform: scale(1.1);
 }

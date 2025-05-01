@@ -483,7 +483,7 @@ function App() {
 
       {screen === 'sala' && (
         <>
-          <Header onExit={() => setMostrarModalDesconexion(true)} />
+          <Header onExit={() => setMostrarModalDesconexion(true)} jugadores={jugadores} />
           <SubHeader
             nombre={nombre}
             codigoSala={codigoSala}
