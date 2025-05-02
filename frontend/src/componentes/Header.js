@@ -3,7 +3,7 @@ import logo from '../img/Logo.png';
 import { ReactComponent as GroupIcon } from '../img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from '../img/ExitBold.svg';
 
-const Header = ({ onExit, jugadores }) => {
+const Header = ({ onExit, jugadores, socketId }) => {
   const [showUsers, setShowUsers] = useState(false);
   
   return (
@@ -28,7 +28,9 @@ const Header = ({ onExit, jugadores }) => {
               <h3><b>Jugadores conectados:</b></h3>
               <ul>
                 {jugadores.map(jugador => (
-                  <li key={jugador.id}>{jugador.nombre} <p>({jugador.id})</p></li>
+                  <li key={jugador.id}>
+                    {jugador.nombre}
+                    {jugador.id === socketId && <span className="tag-you">(Tú)</span>} <p>({jugador.id})</p></li>
                 ))}
               </ul>
             </div>

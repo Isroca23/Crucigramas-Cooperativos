@@ -484,7 +484,7 @@ function App() {
 
       {screen === 'sala' && (
         <>
-          <Header onExit={() => setMostrarModalDesconexion(true)} jugadores={jugadores} />
+          <Header onExit={() => setMostrarModalDesconexion(true)} jugadores={jugadores} socketId={socket.id} />
           <SubHeader
             nombre={nombre}
             codigoSala={codigoSala}
@@ -637,14 +637,14 @@ function App() {
                             <form className="config-form" onClick={(e) => e.stopPropagation() } onSubmit={(e) => { e.preventDefault(); }}>
                               <label>
                                 Filas:
-                                <input type="number" name="filas" min="9" max="21" value={configuracionCrucigrama.filas}
+                                <input type="number" name="filas" min="9" max="17" value={configuracionCrucigrama.filas}
                                   onChange={(e) => { e.stopPropagation(); handleConfiguracionChange(e); }}
                                   onKeyDown={(e) => e.preventDefault()}
                                 />
                               </label>
                               <label>
                                 Columnas:
-                                <input type="number" name="columnas" min="9" max="21" value={configuracionCrucigrama.columnas}
+                                <input type="number" name="columnas" min="9" max="17" value={configuracionCrucigrama.columnas}
                                   onChange={(e) => { e.stopPropagation(); handleConfiguracionChange(e); }}
                                   onKeyDown={(e) => e.preventDefault()}
                                 />

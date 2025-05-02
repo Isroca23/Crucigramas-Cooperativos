@@ -18,11 +18,12 @@
   --color-jugador-5: #CFA79A;
 
   /* Espaciado */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
+  --spacing-xs: 0.5vh;
+  --spacing-sm: 1vh;
+  --spacing-md: 2vh;
+  --spacing-df: 3.5vh;
+  --spacing-lg: 4vh;
+  --spacing-xl: 8vh;
 
   /* Bordes y sombras */
   --border-radius: 4px;
@@ -36,7 +37,7 @@
   --subheader-height: 5vh;
   --main-height: 83.5vh;
   --container-height: 76.5vh;
-  --crossword-grid-height: 51.5vh;
+  --crossword-grid-height: 55.2vh;
 }
 
 /* 3. Reset y estilos base */
@@ -85,7 +86,7 @@ code {
 
 .header-left {
   position: relative;
-  margin: 3.5vh 0vh;
+  margin: var(--spacing-df) 0vh;
   padding: 0.5vh;
   z-index: 2;
   background-color: var(--color-dark);
@@ -187,7 +188,7 @@ code {
   background-color: var(--color-dark);
   border-radius: 50%;
   z-index: 0;
-  filter: blur(10vh);
+  filter: blur(8vh);
 }
 
 .initial-logo {
@@ -271,6 +272,7 @@ code {
 
 .initial-form input::placeholder {
   color: var(--color-dark);
+  opacity: 70%;
   font-style: italic;
 }
 
@@ -299,18 +301,18 @@ code {
   background-color: var(--color-dark);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-lg);
-  margin: 3.5vh;
+  padding-top: 0;
+  margin: var(--spacing-df);
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: var(--container-height);
-  gap: 5vh;
 }
 
 .crossword-container .help-text {
-  margin-top: auto;
+  margin-top: var(--spacing-sm);
   font-size: 0.8rem;
   color: var(--color-light);
   text-align: left;
@@ -325,7 +327,7 @@ code {
   display: grid;
   gap: 5px;
   margin: auto;
-  height: var(--crossword-grid-height);
+  height: auto;
 }
 
 /* 9. Casillas del crucigrama */
@@ -334,7 +336,7 @@ code {
   height: calc((var(--crossword-grid-height) - (var(--grid-rows) - 1) * 5px) / var(--grid-rows));
   max-height: 3vw;
   border-radius: 1px;
-  font-size: 1rem;
+  font-size: calc(0.7 * ((var(--crossword-grid-height) - (var(--grid-rows) - 1) * 5px) / var(--grid-rows)));
   font-weight: bold;
   text-transform: uppercase;
   display: flex;
@@ -351,7 +353,7 @@ code {
   border: none;
   outline: none;
   text-align: center;
-  font-size: 1rem;
+  font-size: calc(0.8 * ((var(--crossword-grid-height) - (var(--grid-rows) - 1) * 5px) / var(--grid-rows)));
   font-weight: bold;
   text-transform: uppercase;
   background-color: transparent;
@@ -397,9 +399,9 @@ code {
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  margin-top: 3.5vh;
-  margin-bottom: 3.5vh;
-  margin-right: 3.5vh;
+  margin-top: var(--spacing-df);
+  margin-bottom: var(--spacing-df);
+  margin-right: var(--spacing-df);
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
   height: var(--container-height);
 }
@@ -464,14 +466,13 @@ code {
 /* 12. Botones y controles */
 .buttons-container {
   width: 100%;
-  height: 100%;
   display: flex;
   gap: var(--spacing-md);
   justify-content: space-between;
 }
 
 .crossword-container .buttons-container {
-  margin-top: auto;
+  margin-top: 0;
 }
 
 .buttons-container button {
@@ -710,4 +711,11 @@ code {
 .users-dropdown:hover .icon {
   fill: var(--color-accent);
   transform: scale(1.1);
+}
+
+.tag-you {
+  color: var(--color-accent);
+  font-style: italic;
+  margin-left: var(--spacing-xs);
+  font-size: 0.9em;
 }
