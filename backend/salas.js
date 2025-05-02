@@ -35,6 +35,12 @@ const unirseSala = (socket, { codigoSala, nombre }, callback) => {
     callback({ error: 'La sala no existe.' });
     return;
   }
+  
+  // Verificar límite de jugadores
+  if (salas[codigoSala].jugadores.length >= 5) {
+    callback({ error: 'La sala está llena (máximo 5 jugadores).' });
+    return;
+  }
 
   const jugador = { id: socket.id, nombre };
   salas[codigoSala].jugadores.push(jugador);

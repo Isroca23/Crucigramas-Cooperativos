@@ -11,6 +11,11 @@
   --color-light: #F5EBE0;
   --color-success: #28a745;
   --color-error: #E53935;
+  --color-jugador-1: #A3BFD9;
+  --color-jugador-2: #C7E1D9;
+  --color-jugador-3: #C8C6D7;
+  --color-jugador-4: #D9CBA3;
+  --color-jugador-5: #CFA79A;
 
   /* Espaciado */
   --spacing-xs: 0.25rem;
