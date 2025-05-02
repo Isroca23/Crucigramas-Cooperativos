@@ -210,7 +210,8 @@ code {
 
 .initial-form-container {
   width: 100%;
-  max-width: 18vw;
+  width: auto;
+  max-width: 50vw;
 }
 
 .initial-button-group {
