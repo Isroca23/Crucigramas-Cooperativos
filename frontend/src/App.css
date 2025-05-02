@@ -165,33 +165,132 @@ code {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--color-bg);
+  padding: var(--spacing-lg);
+  text-align: center;
 }
 
-.initial-screen input {
-  margin: var(--spacing-sm) 0;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--color-dark);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  width: 250px;
-  background-color: var(--color-light);
+.initial-logo-container {
+  margin-bottom: var(--spacing-lg);
+  position: relative;
 }
 
-.initial-screen button {
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+.initial-logo-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30vh;
+  height: 30vh;
   background-color: var(--color-dark);
-  border: none;
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  cursor: pointer;
-  color: var(--color-bg);
-  transition: background-color 0.2s;
+  border-radius: 50%;
+  z-index: 0;
+  filter: blur(10vh);
 }
 
-.initial-screen button:hover {
+.initial-logo {
+  position: relative;
+  width: 20vh;
+  height: 20vh;
+  animation: grow 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+.initial-animated-title {
+  font-weight: bold;
+  font-size: 2.5rem;
+  color: var(--color-dark);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  animation: bounce 3s ease-in-out infinite;
+}
+
+.initial-form-container {
+  width: 100%;
+  max-width: 18vw;
+}
+
+.initial-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.initial-primary-button, .initial-secondary-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.initial-primary-button {
+  background-color: var(--color-dark);
+  color: var(--color-bg);
+}
+
+.initial-primary-button:hover {
   background-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.initial-secondary-button {
+  background-color: transparent;
+  color: var(--color-dark);
+}
+
+.initial-secondary-button:hover {
+  color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.initial-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.initial-form label {
+  font-size: 1rem;
+  color: var(--color-dark);
+  text-align: left;
+}
+
+.initial-form input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  font-size: 1rem;
+  border: 2px solid var(--color-dark);
+  outline: none;
+  border-radius: var(--border-radius);
+  background-color: var(--color-bg);
+}
+
+.initial-form input::placeholder {
+  color: var(--color-dark);
+  font-style: italic;
+}
+
+.initial-error-message {
+  color: var(--color-error);
+  margin-top: var(--spacing-sm);
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.5vh); }
+}
+
+@keyframes grow {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 /* 8. Contenedor del crucigrama */
@@ -387,7 +486,7 @@ code {
 }
 
 .buttons-container button:hover {
-  background-color: var(--color-accent);
+  background-color: var(--color-bg);
   transform: scale(1.05);
 }
 
@@ -407,10 +506,6 @@ code {
   cursor: pointer;
   font-weight: bold;
   transition: all 0.2s;
-}
-
-.generate-button:hover {
-  background-color: var(--color-accent);
 }
 
 /* 13. Configuración */

@@ -478,6 +478,7 @@ function App() {
           onCrearSala={crearSala}
           onUnirseSala={unirseSala}
           error={error}
+          setError={setError}
         />
       )}
 
