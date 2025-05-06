@@ -1,6 +1,8 @@
-const { crearSala, unirseSala, salirSala, manejarDesconexion, generarCrucigrama, actualizarCasilla, guardarConfiguracion } = require('./salas');
+const { inicializarIO, crearSala, unirseSala, salirSala, manejarDesconexion, generarCrucigrama, actualizarCasilla, guardarConfiguracion } = require('./salas');
 
 const configureSocketHandlers = (io) => {
+  inicializarIO(io);
+
   io.on('connection', (socket) => {
     socket.on('crearSala', (data, callback) => crearSala(socket, data, callback));
     socket.on('unirseSala', (data, callback) => unirseSala(socket, data, callback));

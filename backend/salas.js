@@ -1,9 +1,16 @@
-const { v4: uuidv4 } = require('uuid');
+const { nanoid } = require('nanoid');
 const { generarCrucigrama: generarCrucigramaDesdeModulo } = require('./crucigramas');
+const { inicializarEstadisticas, actualizarPuntosCasilla, actualizarPuntosPalabra, obtenerEstadisticasSala, reiniciarEstadisticasSala, eliminarEstadisticasJugador} = require('./estadisticas');
+
+let io;
 const salas = {};
 
+const inicializarIO = (ioInstance) => {
+  io = ioInstance;
+};
+
 const crearSala = (socket, { nombre, codigoSalaInput }, callback) => {
-  const codigoSala = codigoSalaInput || uuidv4();
+  const codigoSala = codigoSalaInput || nanoid(6);
   if (salas[codigoSala]) {
     callback({ error: 'La sala con este ID ya existe.' });
     return;
@@ -22,6 +29,8 @@ const crearSala = (socket, { nombre, codigoSalaInput }, callback) => {
       PalabrasEnDesuso: true,
     }
   };
+
+  inicializarEstadisticas(codigoSala, socket.id);
 
   socket.join(codigoSala);
   console.log(`Sala creada: ${codigoSala}`);
@@ -44,6 +53,8 @@ const unirseSala = (socket, { codigoSala, nombre }, callback) => {
 
   const jugador = { id: socket.id, nombre };
   salas[codigoSala].jugadores.push(jugador);
+
+  inicializarEstadisticas(codigoSala, socket.id);
 
   socket.join(codigoSala);
   console.log(`Jugador ${socket.id} (${nombre}) se unió a la sala ${codigoSala}`);
@@ -103,6 +114,8 @@ const generarCrucigrama = async (socket, { codigoSala, configuracion }, callback
   }
 
   try {
+    reiniciarEstadisticasSala(codigoSala);
+
     const crucigrama = await generarCrucigramaDesdeModulo(configuracion);
 
     // Convertir el tablero de respuestas a mayúsculas
@@ -126,6 +139,9 @@ const generarCrucigrama = async (socket, { codigoSala, configuracion }, callback
       pistas: salas[codigoSala].pistas,
     });
 
+    const estadisticas = obtenerEstadisticasSala(codigoSala);
+    io.to(codigoSala).emit('estadisticasActualizadas', estadisticas);
+
     callback({
       tableroRespuestas: salas[codigoSala].tableroRespuestas,
       tableroVisible: salas[codigoSala].tableroVisible,
@@ -141,10 +157,26 @@ const generarCrucigrama = async (socket, { codigoSala, configuracion }, callback
 const actualizarCasilla = (socket, { codigoSala, fila, columna, letra }) => {
   if (!salas[codigoSala]) return;
 
-  // Actualizar el tablero visible en el backend
+  // Actualizar el tablero visible
   salas[codigoSala].tableroVisible[fila][columna] = letra;
 
-  // Emitir el cambio a todos los jugadores de la sala
+  // Verificar si la letra es correcta
+  const esCorrecta = letra === salas[codigoSala].tableroRespuestas[fila][columna];
+  
+  if (esCorrecta) {
+    const puntosNuevos = actualizarPuntosCasilla(codigoSala, socket.id, fila, columna);
+  
+    const palabrasCompletadas = verificarPalabrasCompletadas(codigoSala, fila, columna);
+    palabrasCompletadas.forEach((palabra) => {
+      actualizarPuntosPalabra(codigoSala, socket.id, palabra.texto, palabra.posiciones.length);
+    });
+
+    // Emitir actualización de estadísticas
+    const estadisticas = obtenerEstadisticasSala(codigoSala);
+    io.to(codigoSala).emit('estadisticasActualizadas', estadisticas);
+  }
+
+  // Emitir actualización de casilla
   socket.to(codigoSala).emit('casillaActualizada', { fila, columna, letra });
 };
 
@@ -162,4 +194,69 @@ const guardarConfiguracion = (socket, { codigoSala, configuracionCrucigrama }, c
   callback({ success: true });
 };
 
-module.exports = { crearSala, unirseSala, salirSala, manejarDesconexion, generarCrucigrama, actualizarCasilla, guardarConfiguracion, };
+const verificarPalabrasCompletadas = (codigoSala, fila, columna) => {
+  const sala = salas[codigoSala];
+  const palabrasCompletadas = [];
+
+  // Verificar palabra horizontal
+  let inicioH = columna;
+  while (inicioH > 0 && sala.tableroRespuestas[fila][inicioH - 1] !== '#') inicioH--;
+  let finH = columna;
+  while (finH < sala.tableroRespuestas[fila].length && sala.tableroRespuestas[fila][finH] !== '#') finH++;
+
+  if (finH - inicioH > 1) {
+    let palabraH = '';
+    let completa = true;
+    let posicionesH = [];
+    
+    for (let c = inicioH; c < finH; c++) {
+      if (sala.tableroVisible[fila][c] !== sala.tableroRespuestas[fila][c]) {
+        completa = false;
+        break;
+      }
+      palabraH += sala.tableroRespuestas[fila][c];
+      posicionesH.push({ fila, columna: c });
+    }
+    
+    if (completa) {
+      palabrasCompletadas.push({
+        texto: palabraH,
+        posiciones: posicionesH,
+        orientacion: 'horizontal'
+      });
+    }
+  }
+
+  // Verificar palabra vertical
+  let inicioV = fila;
+  while (inicioV > 0 && sala.tableroRespuestas[inicioV - 1][columna] !== '#') inicioV--;
+  let finV = fila;
+  while (finV < sala.tableroRespuestas.length && sala.tableroRespuestas[finV][columna] !== '#') finV++;
+
+  if (finV - inicioV > 1) {
+    let palabraV = '';
+    let completa = true;
+    let posicionesV = [];
+    
+    for (let f = inicioV; f < finV; f++) {
+      if (sala.tableroVisible[f][columna] !== sala.tableroRespuestas[f][columna]) {
+        completa = false;
+        break;
+      }
+      palabraV += sala.tableroRespuestas[f][columna];
+      posicionesV.push({ fila: f, columna });
+    }
+    
+    if (completa) {
+      palabrasCompletadas.push({
+        texto: palabraV,
+        posiciones: posicionesV,
+        orientacion: 'vertical'
+      });
+    }
+  }
+
+  return palabrasCompletadas;
+};
+
+module.exports = { inicializarIO, crearSala, unirseSala, salirSala, manejarDesconexion, generarCrucigrama, actualizarCasilla, guardarConfiguracion, verificarPalabrasCompletadas };

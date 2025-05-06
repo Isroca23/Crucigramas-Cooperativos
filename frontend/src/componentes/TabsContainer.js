@@ -1,20 +1,16 @@
 import React from 'react';
+import Estadisticas from './Estadisticas.js';
+import Definiciones from './Definiciones.js';
 
-const TabsContainer = ({ pestanaActiva, onTabChange, definicionSeleccionada }) => {
+const TabsContainer = ({ pestanaActiva, onTabChange, definicionSeleccionada, estadisticas, jugadores, socketId, onSeleccionarPalabra }) => {
   return (
     <div className="tabs-container">
       <div className="tabs">
         <button
-          className={pestanaActiva === 'palabras' ? 'tab active' : 'tab'}
-          onClick={() => onTabChange('palabras')}
+          className={pestanaActiva === 'definiciones' ? 'tab active' : 'tab'}
+          onClick={() => onTabChange('definiciones')}
         >
-          Palabras
-        </button>
-        <button
-          className={pestanaActiva === 'chat' ? 'tab active' : 'tab'}
-          onClick={() => onTabChange('chat')}
-        >
-          Chat
+          Definiciones
         </button>
         <button
           className={pestanaActiva === 'estadisticas' ? 'tab active' : 'tab'}
@@ -25,24 +21,17 @@ const TabsContainer = ({ pestanaActiva, onTabChange, definicionSeleccionada }) =
       </div>
 
       <div className="tab-content">
-        {pestanaActiva === 'palabras' && (
-          <div>
-            {definicionSeleccionada ? (
-              <div>
-                <strong>Definiciones:</strong>
-                <ol className="definition-list">
-                  {definicionSeleccionada.map((definicion, index) => (
-                    <li key={index}>{definicion}</li>
-                  ))}
-                </ol>
-              </div>
-            ) : (
-              <p>Selecciona una palabra para ver sus definiciones.</p>
-            )}
-          </div>
+        {pestanaActiva === 'definiciones' && (
+          <Definiciones definicionSeleccionada={definicionSeleccionada} />
         )}
-        {pestanaActiva === 'chat' && <p>Aquí estará el chat.</p>}
-        {pestanaActiva === 'estadisticas' && <p>Aquí se mostrarán las estadísticas.</p>}
+        {pestanaActiva === 'estadisticas' && (
+          <Estadisticas 
+            estadisticas={estadisticas} 
+            jugadores={jugadores} 
+            socketId={socketId} 
+            onSeleccionarPalabra={onSeleccionarPalabra}
+          />
+        )}
       </div>
     </div>
   );

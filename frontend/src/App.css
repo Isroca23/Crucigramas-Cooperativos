@@ -105,8 +105,9 @@ code {
 
 .header-center h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 3rem;
   color: var(--color-dark);
+  cursor: default;
 }
 
 .header-right {
@@ -145,6 +146,7 @@ code {
   border-bottom: 1px solid var(--color-dark);
   height: var(--subheader-height);
   align-items: center;
+  cursor: default;
 }
 
 .copy-code {
@@ -418,7 +420,7 @@ code {
   background-color: var(--color-light);
   border: none;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.5rem;
   transition: background-color 0.2s;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -454,6 +456,28 @@ code {
 }
 
 /* 11. Definiciones */
+.definition-container {
+  height: 100%;
+  padding: var(--spacing-md);
+}
+
+.definition-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-soft);
+}
+
+.definition-header h2 {
+  color: var(--color-dark);
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: default;
+}
+
 .definition-list {
   margin-top: var(--spacing-sm);
   padding-left: var(--spacing-lg);
@@ -463,8 +487,183 @@ code {
   margin-bottom: var(--spacing-sm);
   line-height: 1.5;
 }
+/* 12. Estadísticas */
+.stats-container {
+  height: 100%;
+  padding: var(--spacing-md);
+}
 
-/* 12. Botones y controles */
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-soft);
+}
+
+.stats-header h2 {
+  color: var(--color-dark);
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: default;
+}
+
+.stats-info {
+  position: relative;
+}
+
+.info-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-dark);
+  transition: fill 0.2s ease;
+}
+
+.info-icon:hover {
+  color: var(--color-accent);
+}
+
+.stats-tooltip {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--color-light);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
+  width: 20vw;
+  box-shadow: var(--shadow-lg);
+  z-index: 10;
+}
+
+.stats-info:hover .stats-tooltip {
+  display: block;
+}
+
+.stats-tooltip h4 {
+  color: var(--color-dark);
+  margin: 0 0 var(--spacing-sm) 0;
+  border-bottom: 2px solid var(--color-soft);
+  font-size: 1rem;
+}
+
+.stats-tooltip ul {
+  margin: 0;
+  color: var(--color-dark);
+  font-size: 0.9rem;
+}
+
+.stats-player-card {
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-sm);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-player-card:hover {
+  transform: scale(1.01);
+  box-shadow: var(--shadow-sm);
+}
+
+.stats-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.stats-player-card:hover {
+  background-color: var(--color-soft);
+}
+
+.stats-player-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.stats-position {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-dark);
+  opacity: 0.8;
+}
+
+.stats-name {
+  font-weight: 600;
+  color: var(--color-dark);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.stats-player-score {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-dark);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.stats-player-details {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.stats-points-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stats-points-breakdown > div {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-dark);
+  font-size: 0.9rem;
+}
+
+.stats-words {
+  border-top: 1px solid var(--color-soft);
+  padding-top: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.stats-words h5 {
+  color: var(--color-dark);
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.stats-words-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+.stats-word-tag {
+  background: var(--color-soft);
+  color: var(--color-dark);
+  padding: 4px var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.2s ease;
+}
+
+.stats-word-tag:hover {
+  background: var(--color-accent);
+  color: var(--color-light);
+}
+
+/* 13. Botones y controles */
 .buttons-container {
   width: 100%;
   display: flex;
@@ -510,7 +709,7 @@ code {
   transition: all 0.2s;
 }
 
-/* 13. Configuración */
+/* 14. Configuración */
 .config-form {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -573,7 +772,7 @@ code {
   transform: rotate(180deg);
 }
 
-/* 14. Modal */
+/* 15. Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -620,7 +819,7 @@ code {
   background-color: var(--color-accent);
 }
 
-/* 15. Animaciones */
+/* 16. Animaciones */
 @keyframes ola {
   0% { transform: translateY(0); }
   50% { transform: translateY(-0.5rem); }
@@ -635,13 +834,13 @@ code {
   100% { transform: rotate(0deg); }
 }
 
-/* 16. Utilidades y clases de ayuda */
+/* 17. Utilidades y clases de ayuda */
 .error-message {
   color: var(--color-error);
   margin-top: var(--spacing-sm);
 }
 
-/* 17. Estilos redundantes (mantenidos por compatibilidad) */
+/* 18. Estilos redundantes (mantenidos por compatibilidad) */
 .buttons-container {
   position: relative;
   display: inline-flex;
@@ -663,7 +862,7 @@ code {
   box-shadow: var(--shadow-sm);
 }
 
-/* 18. Usuarios */
+/* 19. Usuarios */
 .users-dropdown {
   position: relative;
   display: flex;

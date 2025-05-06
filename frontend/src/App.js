@@ -31,6 +31,7 @@ function App() {
   const [formVisible, setFormVisible] = useState(false); // Formulario de generación de crucigrama visible
   const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
   const [mostrarModalDesconexion, setMostrarModalDesconexion] = useState(false);
+  const [estadisticas, setEstadisticas] = useState({});
   const [configuracionCrucigrama, setConfiguracionCrucigrama] = useState({ //Configuración de generación de crucigrama
     filas: 13,
     columnas: 13,
@@ -75,6 +76,10 @@ function App() {
       });
     });
 
+    socket.on('estadisticasActualizadas', (nuevasEstadisticas) => {
+      setEstadisticas(nuevasEstadisticas);
+    });
+    
     const handleBeforeUnload = (e) => {
       e.preventDefault();
       e.returnValue = '';
@@ -89,6 +94,7 @@ function App() {
       socket.off('configuracionActualizada');
       socket.off('connect_error');
       socket.off('casillaActualizada');
+      socket.off('estadisticasActualizadas');
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [tableroRespuestas, tableroVisible]);
@@ -441,6 +447,45 @@ function App() {
   
   const definicionSeleccionada = obtenerDefinicionSeleccionada();
 
+  const onSeleccionarPalabra = (palabra) => {
+    // Buscar la palabra en el tablero
+    const casillas = [];
+    tableroRespuestas.forEach((fila, filaIndex) => {
+      fila.forEach((letra, columnaIndex) => {
+        if (letra === palabra[0]) {
+          // Verificar si la palabra coincide horizontalmente
+          const horizontal = tableroRespuestas[filaIndex]
+            .slice(columnaIndex, columnaIndex + palabra.length)
+            .join('') === palabra;
+
+          if (horizontal) {
+            for (let i = 0; i < palabra.length; i++) {
+              casillas.push({ fila: filaIndex, columna: columnaIndex + i });
+            }
+          }
+
+          // Verificar si la palabra coincide verticalmente
+          const vertical = tableroRespuestas
+            .slice(filaIndex, filaIndex + palabra.length)
+            .map((fila) => fila[columnaIndex])
+            .join('') === palabra;
+
+          if (vertical) {
+            for (let i = 0; i < palabra.length; i++) {
+              casillas.push({ fila: filaIndex + i, columna: columnaIndex });
+            }
+          }
+        }
+      });
+    });
+
+    // Seleccionar la primera casilla de la palabra
+    if (casillas.length > 0) {
+      setCasillaSeleccionada(casillas[0]);
+      setOrientacion(casillas[0].fila === casillas[1]?.fila ? 'horizontal' : 'vertical');
+    }
+  };
+
   return (
     <div className="App" onKeyDown={handleKeyDown} tabIndex={0}>
       {mostrarModalDesconexion && (
@@ -687,6 +732,10 @@ function App() {
               pestanaActiva={pestanaActiva}
               onTabChange={setPestanaActiva}
               definicionSeleccionada={definicionSeleccionada}
+              estadisticas={estadisticas}
+              jugadores={jugadores}
+              socketId={socket.id}
+              onSeleccionarPalabra={onSeleccionarPalabra}
             />
           </div>
         </>

@@ -1,45 +1,77 @@
-// estadisticas.js
+const estadisticasSalas = {};
 
-let jugadoresStats = {}; // Almacena el rendimiento de los jugadores
-
-// Función para actualizar las estadísticas
-const actualizarEstadisticas = (jugador, letra, posicion, esCorrecto) => {
-  if (!jugadoresStats[jugador]) {
-    jugadoresStats[jugador] = { aciertos: 0, fallos: 0, completadas: 0 };
+const inicializarEstadisticas = (codigoSala, jugadorId) => {
+  if (!estadisticasSalas[codigoSala]) {
+    estadisticasSalas[codigoSala] = {};
   }
-
-  if (esCorrecto) {
-    jugadoresStats[jugador].aciertos++;
-  } else {
-    jugadoresStats[jugador].fallos++;
-  }
-
-  // Verificar si el jugador ha completado una palabra
-  if (esPalabraCompleta(posicion)) {
-    jugadoresStats[jugador].completadas++;
-  }
-
-  return jugadoresStats;
-};
-
-// Función para determinar si una palabra se ha completado (simulada)
-const esPalabraCompleta = (posicion) => {
-  // Lógica de comprobación (puede variar según la implementación)
-  return Math.random() > 0.5; // Simulando un 50% de probabilidad
-};
-
-// Función para calcular las estadísticas finales
-const calcularEstadisticas = () => {
-  const resultados = Object.keys(jugadoresStats).map(jugador => {
-    return {
-      jugador,
-      ...jugadoresStats[jugador]
+  
+  if (!estadisticasSalas[codigoSala][jugadorId]) {
+    estadisticasSalas[codigoSala][jugadorId] = {
+      puntosCasillas: 0,
+      puntosPalabras: 0,
+      palabrasCompletadas: [],
+      casillasCompletadas: new Set(),
+      total: 0
     };
-  });
+  }
 
-  // Ordenar por aciertos, fallos y palabras completadas
-  resultados.sort((a, b) => b.aciertos - a.aciertos);  // Primero por aciertos
-  return resultados;
+  return estadisticasSalas[codigoSala][jugadorId];
 };
 
-module.exports = { actualizarEstadisticas, calcularEstadisticas };
+const actualizarPuntosCasilla = (codigoSala, jugadorId, fila, columna) => {
+  const stats = inicializarEstadisticas(codigoSala, jugadorId);
+  const casilla = `${fila}-${columna}`;
+  
+  if (!stats.casillasCompletadas.has(casilla)) {
+    stats.casillasCompletadas.add(casilla);
+    stats.puntosCasillas += 1;
+    stats.total += 1;
+    return true;
+  }
+  return false;
+};
+
+const actualizarPuntosPalabra = (codigoSala, jugadorId, palabra, longitud) => {
+  const stats = estadisticasSalas[codigoSala][jugadorId];
+  
+  if (!stats.palabrasCompletadas.includes(palabra)) {
+    stats.palabrasCompletadas.push(palabra);
+    stats.puntosPalabras += longitud;
+    stats.total += longitud;
+    return true;
+  }
+  return false;
+};
+
+const obtenerEstadisticasSala = (codigoSala) => {
+  return estadisticasSalas[codigoSala] || {};
+};
+
+const reiniciarEstadisticasSala = (codigoSala) => {
+  if (estadisticasSalas[codigoSala]) {
+    Object.keys(estadisticasSalas[codigoSala]).forEach(jugadorId => {
+      estadisticasSalas[codigoSala][jugadorId] = {
+        puntosCasillas: 0,
+        puntosPalabras: 0,
+        palabrasCompletadas: [],
+        casillasCompletadas: new Set(),
+        total: 0
+      };
+    });
+  }
+};
+
+const eliminarEstadisticasJugador = (codigoSala, jugadorId) => {
+  if (estadisticasSalas[codigoSala]) {
+    delete estadisticasSalas[codigoSala][jugadorId];
+  }
+};
+
+module.exports = {
+  inicializarEstadisticas,
+  actualizarPuntosCasilla,
+  actualizarPuntosPalabra,
+  obtenerEstadisticasSala,
+  reiniciarEstadisticasSala,
+  eliminarEstadisticasJugador
+};
