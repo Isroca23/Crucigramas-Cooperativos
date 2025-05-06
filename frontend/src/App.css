@@ -48,10 +48,6 @@ body {
   color: var(--color-dark);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
-
 /* 4. Layout principal */
 .App {
   display: flex;
@@ -417,23 +413,25 @@ code {
 .tab {
   flex: 1;
   padding: 0.5rem;
-  background-color: var(--color-light);
+  background-color: var(--color-dark);
+  color: var(--color-light);
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
   border: none;
   cursor: pointer;
   font-size: 1.5rem;
   transition: background-color 0.2s;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.tab:hover {
+/* .tab:hover {
   background-color: var(--color-soft);
   box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.2);
-}
+} */
 
 .tab.active {
-  background-color: var(--color-soft);
+  background-color: var(--color-light);
+  color: var(--color-dark);
   font-weight: bold;
-  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .tab-content {
@@ -667,6 +665,8 @@ code {
 .buttons-container {
   width: 100%;
   display: flex;
+  position: relative;
+  align-items: center;
   gap: var(--spacing-md);
   justify-content: space-between;
 }
@@ -689,11 +689,6 @@ code {
 .buttons-container button:hover {
   background-color: var(--color-bg);
   transform: scale(1.05);
-}
-
-.buttons-container button:disabled {
-  background-color: var(--color-accent);
-  cursor: not-allowed;
 }
 
 .generate-button {
@@ -804,7 +799,8 @@ code {
 }
 
 .confirm-button,
-.cancel-button {
+.cancel-button,
+.action-button {
   background-color: var(--color-light);
   color: var(--color-dark);
   border: none;
@@ -815,7 +811,8 @@ code {
 }
 
 .confirm-button:hover,
-.cancel-button:hover {
+.cancel-button:hover,
+.action-button:hover {
   background-color: var(--color-accent);
 }
 
@@ -841,13 +838,6 @@ code {
 }
 
 /* 18. Estilos redundantes (mantenidos por compatibilidad) */
-.buttons-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
 .config-form button {
   position: relative;
   cursor: pointer;

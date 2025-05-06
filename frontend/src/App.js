@@ -31,6 +31,7 @@ function App() {
   const [formVisible, setFormVisible] = useState(false); // Formulario de generación de crucigrama visible
   const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
   const [mostrarModalDesconexion, setMostrarModalDesconexion] = useState(false);
+  const [mostrarModalVictoria, setMostrarModalVictoria] = useState(false);
   const [estadisticas, setEstadisticas] = useState({});
   const [configuracionCrucigrama, setConfiguracionCrucigrama] = useState({ //Configuración de generación de crucigrama
     filas: 13,
@@ -379,6 +380,7 @@ function App() {
           }
         });
       });
+      setMostrarModalVictoria(true);
     }
   
     setAnimaciones(nuevasAnimaciones);
@@ -511,6 +513,32 @@ function App() {
             iniciarGeneracionCrucigrama();
           }}
           onCancelar={() => setMostrarModalConfirmacion(false)}
+        />
+      )}
+
+      {mostrarModalVictoria && (
+        <Modal
+          mensaje="¡Enhorabuena! ¡Habéis completado el crucigrama!"
+          confirmar={esAnfitrion ? "Generar nuevo crucigrama" : "Ver sala"}
+          cancelar="Salir de la sala"
+          {...(esAnfitrion && {
+            acciones: [
+              {
+                texto: "Ver sala",
+                onClick: () => setMostrarModalVictoria(false)
+              }
+            ]
+          })}
+          onConfirmar={() => {
+            setMostrarModalVictoria(false);
+            if (esAnfitrion) {
+              iniciarGeneracionCrucigrama();
+            }
+          }}
+          onCancelar={() => {
+            setMostrarModalVictoria(false);
+            salirSala();
+          }}
         />
       )}
 

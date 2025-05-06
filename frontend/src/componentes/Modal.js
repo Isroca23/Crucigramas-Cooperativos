@@ -1,7 +1,7 @@
 import React from 'react';
 import '../App.css';
 
-const ModalConfirmacion = ({ mensaje, confirmar, cancelar, onConfirmar, onCancelar }) => {
+const ModalConfirmacion = ({ mensaje, confirmar, cancelar, onConfirmar, onCancelar, acciones }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -10,6 +10,15 @@ const ModalConfirmacion = ({ mensaje, confirmar, cancelar, onConfirmar, onCancel
           <button className="confirm-button" onClick={onConfirmar}>
             {confirmar}
           </button>
+          {acciones && acciones.map((accion, index) => (
+            <button 
+              key={index} 
+              className="action-button"
+              onClick={accion.onClick}
+            >
+              {accion.texto}
+            </button>
+          ))}
           <button className="cancel-button" onClick={onCancelar}>
             {cancelar}
           </button>
