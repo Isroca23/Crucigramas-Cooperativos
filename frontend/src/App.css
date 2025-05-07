@@ -86,7 +86,7 @@ body {
   width: 4vh;
   height: 4vh;
   background-color: var(--color-dark);
-  border-radius: 100%;
+  border-radius: 50%;
   transition: background-color 0.2s ease;
   aspect-ratio: 1;
 }
@@ -97,7 +97,7 @@ body {
   object-fit: contain;
 }
 
-.header-left:hover{
+.header-left:hover {
   background-color: var(--color-accent);
 }
 
@@ -119,8 +119,6 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
   margin-left: var(--spacing-md);
 }
 
@@ -129,10 +127,8 @@ body {
 }
 
 .header-right .icon {
-  width: 30px;
-  height: 30px;
   fill: var(--color-dark);
-  transition: fill 0.2s, transform 0.2s;
+  transition: fill 0.2s
 }
 
 /* 6. Sub-header */
@@ -210,7 +206,6 @@ body {
 }
 
 .initial-form-container {
-  width: 100%;
   width: auto;
   max-width: 50vw;
 }
@@ -329,6 +324,12 @@ body {
   animation: bounce 3s ease-in-out infinite;
 }
 
+.buttons-container-anfitrion {
+  display: flex;
+  gap: var(--spacing-xs);
+  position: relative;
+}
+
 /* 9. Casillas del crucigrama */
 .casilla {
   aspect-ratio: 1 / 1;
@@ -360,22 +361,22 @@ body {
 
 /* Estados de casillas */
 .casilla.negra {
-  background-color: var(--color-dark) !important;
+  background-color: var(--color-dark);
   pointer-events: none;
 }
 
 .casilla.vacia {
-  background-color: var(--color-bg) !important;
+  background-color: var(--color-bg);
 }
 
 .casilla.seleccionada {
-  background-color: var(--color-accent) !important;
-  border: 3px solid var(--color-accent) !important;
+  background-color: var(--color-accent);
+  border: 3px solid var(--color-accent);
   transform: scale(1.1);
 }
 
 .casilla.parte-de-palabra {
-  background-color: var(--color-soft) !important;
+  background-color: var(--color-soft);
 }
 
 .casilla.correcto {
@@ -393,14 +394,14 @@ body {
 .tabs-container {
   flex: 2;
   background-color: var(--color-dark);
-  border-radius: 8px;
+  border-radius: var(--border-radius-lg);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   margin-top: var(--spacing-df);
   margin-bottom: var(--spacing-df);
   margin-right: var(--spacing-df);
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   height: var(--container-height);
 }
 
@@ -481,6 +482,8 @@ body {
 }
 /* 12. Estadísticas */
 .stats-container {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   padding: var(--spacing-md);
 }
@@ -531,7 +534,8 @@ body {
   z-index: 10;
 }
 
-.stats-info:hover .stats-tooltip {
+.stats-info:hover .stats-tooltip,
+.stats-info.clicked .stats-tooltip {
   display: block;
 }
 
@@ -549,15 +553,18 @@ body {
 }
 
 .stats-player-card {
+  flex: 1;
+  width: 100%;
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-sm);
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .stats-player-card:hover {
   transform: scale(1.01);
   box-shadow: var(--shadow-sm);
+  background-color: var(--color-soft);
 }
 
 .stats-player-header {
@@ -567,10 +574,6 @@ body {
   padding: var(--spacing-sm) var(--spacing-md);
   cursor: pointer;
   transition: background-color 0.2s ease;
-}
-
-.stats-player-card:hover {
-  background-color: var(--color-soft);
 }
 
 .stats-player-info {
@@ -643,7 +646,7 @@ body {
 .stats-word-tag {
   background: var(--color-soft);
   color: var(--color-dark);
-  padding: 4px var(--spacing-sm);
+  padding: var(--spacing-sm);
   border-radius: var(--border-radius);
   font-size: 0.8rem;
   font-weight: 500;
@@ -706,17 +709,35 @@ body {
 }
 
 /* 14. Configuración */
+.config-button {
+  background-color: var(--color-soft);
+  color: var(--color-dark);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.config-button:hover {
+  background-color: var(--color-bg);
+  transform: scale(1.05);
+}
+
 .config-form {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-sm);
   position: absolute;
   bottom: 100%;
+  left: auto;
+  right: auto;
   background-color: var(--color-light);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-sm);
   box-shadow: var(--shadow-lg);
   height: auto;
+  width: min-content;
+  z-index: 100;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -751,23 +772,21 @@ body {
 }
 
 .settings-icon {
-  width: 15px;
-  height: 15px;
-  fill: var(--color-light);
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-dark);
   transition: transform 0.3s ease-in-out;
 }
 
-.settings-icon-container {
-  position: absolute;
-  top: var(--spacing-xs);
-  right: var(--spacing-xs);
-  cursor: pointer;
+.config-button:hover .config-form,
+.config-button.clicked .config-form{
+  display: grid;
 }
 
-.settings-icon-container:hover .settings-icon {
+.config-button:hover .settings-icon,
+.config-button.clicked .settings-icon {
   transform: rotate(180deg);
 }
-
 /* 15. Modal */
 .modal-overlay {
   position: fixed;
@@ -810,13 +829,15 @@ body {
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius);
   cursor: pointer;
+  transition: all 0.2s;
   font-size: 1rem;
 }
 
 .confirm-button:hover,
 .cancel-button:hover,
 .action-button:hover {
-  background-color: var(--color-accent);
+  background-color: var(--color-bg);
+  transform: scale(1.05);
 }
 
 /* 16. Animaciones */
@@ -854,32 +875,24 @@ body {
   margin-top: var(--spacing-sm);
 }
 
-/* 18. Estilos redundantes (mantenidos por compatibilidad) */
-.config-form button {
-  position: relative;
-  cursor: pointer;
-  background-color: var(--color-soft);
-  color: var(--color-dark);
-  border: none;
-  border-radius: var(--border-radius);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: 1rem;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: var(--shadow-sm);
-}
-
-/* 19. Usuarios */
+/* 18. Usuarios */
 .users-dropdown {
   position: relative;
   display: flex;
   align-items: center;
 }
 
+.users-dropdown:hover .users-menu,
+.users-dropdown.clicked .users-menu {
+  display: block;
+}
+
 .users-menu {
+  display: none;
   position: absolute;
   top: 100%;
   right: 0;
+  text-align: left;
   width: 50vw;
   max-width: 200px;
   background-color: var(--color-light);
@@ -917,8 +930,8 @@ body {
 }
 
 .users-dropdown:hover .icon {
-  fill: var(--color-accent);
-  transform: scale(1.1);
+  color: var(--color-accent);
+  transition: color 0.2s;
 }
 
 .tag-you {
@@ -928,7 +941,7 @@ body {
   font-size: 0.9em;
 }
 
-/* 20. Responsive */
+/* 19. Responsive */
 .main-content.stacked .crossword-container {
   height: auto;
   width: 100%;
@@ -952,6 +965,18 @@ body {
   gap: var(--spacing-sm);
 }
 
+.main-content.stacked .buttons-container-anfitrion {
+  align-items: stretch;
+  gap: var(--spacing-sm);
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.main-content.stacked .buttons-container-anfitrion .generate-button {
+  flex: 1;
+}
+
 .main-content.stacked .tabs-container {
   height: auto;
   width: 100%;
@@ -959,17 +984,15 @@ body {
   margin-left: var(--spacing-df);
 }
 
-/* Media queries */
+/* 20 Media queries */
 /* Estilo para pantallas grandes */
 @media (min-width: 769px) {
   .crossword-container {
     flex: 2;
-    /* max-width: 70%; */
   }
 
   .tabs-container {
     flex: 1;
-    /* max-width: 70%; */
   }
 }
 

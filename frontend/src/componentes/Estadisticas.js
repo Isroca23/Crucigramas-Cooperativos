@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ReactComponent as InfoIcon } from '../img/Info.svg';
+import ClickableButton from './ClickableButton';
 
 const Estadisticas = ({ estadisticas, jugadores, socketId, onSeleccionarPalabra }) => {
   const [jugadoresExpandidos, setJugadoresExpandidos] = useState(new Set());
@@ -18,7 +19,7 @@ const Estadisticas = ({ estadisticas, jugadores, socketId, onSeleccionarPalabra 
     <div className="stats-container">
       <div className="stats-header">
         <h2>Tabla de puntuaciones</h2>
-        <div className="stats-info">
+        <ClickableButton className="stats-info">
           <InfoIcon className="info-icon" />
           <div className="stats-tooltip">
             <h4>Sistema de puntuación:</h4>
@@ -27,7 +28,7 @@ const Estadisticas = ({ estadisticas, jugadores, socketId, onSeleccionarPalabra 
               <li>+N puntos por completar una palabra de N letras</li>
             </ul>
           </div>
-        </div>
+        </ClickableButton>
       </div>
       
       <div className="stats-list">
@@ -48,7 +49,7 @@ const Estadisticas = ({ estadisticas, jugadores, socketId, onSeleccionarPalabra 
           const isExpanded = jugadoresExpandidos.has(jugador.id);
 
           return (
-            <div key={jugador.id} className="stats-player-card">
+            <ClickableButton key={jugador.id} className="stats-player-card">
               <div className="stats-player-header" onClick={() => toggleJugador(jugador.id)}>
                 <div className="stats-player-info">
                   <span className="stats-position">{index + 1}</span>
@@ -94,7 +95,7 @@ const Estadisticas = ({ estadisticas, jugadores, socketId, onSeleccionarPalabra 
                   )}
                 </div>
               )}
-            </div>
+            </ClickableButton>
           );
         })}
     </div>

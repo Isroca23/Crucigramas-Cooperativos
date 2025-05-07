@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import logo from '../img/Logo.png';
 import { ReactComponent as GroupIcon } from '../img/GroupRounded.svg';
 import { ReactComponent as ExitIcon } from '../img/ExitBold.svg';
+import ClickableButton from './ClickableButton';
 
 const Header = ({ onExit, jugadores, socketId }) => {
-  const [showUsers, setShowUsers] = useState(false);
   
   return (
     <div className="header-bar">
@@ -15,27 +15,19 @@ const Header = ({ onExit, jugadores, socketId }) => {
         <h1><strong>Crucigramas Cooperativos</strong></h1>
       </div>
       <div className="header-right">
-      <div className="users-dropdown">
-          <button 
-            className="icon-button"
-            onMouseEnter={() => setShowUsers(true)}
-            onMouseLeave={() => setShowUsers(false)}
-          >
-            <GroupIcon className="icon" />
-          </button>
-          {showUsers && (
-            <div className="users-menu">
-              <h3><b>Jugadores conectados:</b></h3>
-              <ul>
-                {jugadores.map(jugador => (
-                  <li key={jugador.id}>
-                    {jugador.nombre}
-                    {jugador.id === socketId && <span className="tag-you">(Tú)</span>} <p>({jugador.id})</p></li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        <ClickableButton className="users-dropdown">
+          <GroupIcon className="icon" />
+          <div className="users-menu">
+            <h3><b>Jugadores conectados:</b></h3>
+            <ul>
+              {jugadores.map(jugador => (
+                <li key={jugador.id}>
+                  {jugador.nombre}
+                  {jugador.id === socketId && <span className="tag-you">(Tú)</span>} <p>({jugador.id})</p></li>
+              ))}
+            </ul>
+          </div>
+        </ClickableButton>
         <button className="icon-button" onClick={onExit}>
           <ExitIcon className="icon" />
         </button>
