@@ -13,27 +13,28 @@ import { ReactComponent as SettingsIcon } from './img/Settings.svg';
 const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000');
 
 function App() {
-  const [screen, setScreen] = useState('initial'); // Manejar la pantalla actual
-  const [codigoSala, setCodigoSala] = useState(''); // Almacenar el código de la sala
-  const [codigoSalaInput, setCodigoSalaInput] = useState(''); // Almacenar el input del código de sala
-  const [nombre, setNombre] = useState(''); // Almacenar el nombre del jugador
-  const [error, setError] = useState(''); // Almacenar mensajes de error
-  const [tableroRespuestas, setTableroRespuestas] = useState(null); // Tablero de respuestas correctas
-  const [tableroVisible, setTableroVisible] = useState(null); // Tablero visible para los jugadores
-  const [pestanaActiva, setPestanaActiva] = useState('palabras'); // Manejar la pestaña activa
-  const [jugadores, setJugadores] = useState([]); // Almacenar la lista de jugadores
-  const [isLoading, setIsLoading] = useState(false); // Manejar el estado de carga
-  const [casillaSeleccionada, setCasillaSeleccionada] = useState({ fila: 0, columna: 0 }); // Casilla seleccionada
-  const [orientacion, setOrientacion] = useState('horizontal'); // Orientación de la palabra seleccionada
-  const [showCopiedIcon, setShowCopiedIcon] = useState(false); // Estado para mostrar el ícono
-  const [pistas, setPistas] = useState([]); // Estado para almacenar las pistas
-  const [animaciones, setAnimaciones] = useState([]); // Estado para manejar animaciones
-  const [formVisible, setFormVisible] = useState(false); // Formulario de generación de crucigrama visible
+  const [screen, setScreen] = useState('initial');
+  const [codigoSala, setCodigoSala] = useState('');
+  const [codigoSalaInput, setCodigoSalaInput] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [error, setError] = useState('');
+  const [tableroRespuestas, setTableroRespuestas] = useState(null);
+  const [tableroVisible, setTableroVisible] = useState(null);
+  const [pestanaActiva, setPestanaActiva] = useState('definiciones'); 
+  const [jugadores, setJugadores] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [casillaSeleccionada, setCasillaSeleccionada] = useState({ fila: 0, columna: 0 });
+  const [orientacion, setOrientacion] = useState('horizontal');
+  const [showCopiedIcon, setShowCopiedIcon] = useState(false);
+  const [pistas, setPistas] = useState([]);
+  const [animaciones, setAnimaciones] = useState([]);
+  const [formVisible, setFormVisible] = useState(false);
   const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
   const [mostrarModalDesconexion, setMostrarModalDesconexion] = useState(false);
   const [mostrarModalVictoria, setMostrarModalVictoria] = useState(false);
   const [estadisticas, setEstadisticas] = useState({});
-  const [configuracionCrucigrama, setConfiguracionCrucigrama] = useState({ //Configuración de generación de crucigrama
+  const [isStacked, setIsStacked] = useState(false);
+  const [configuracionCrucigrama, setConfiguracionCrucigrama] = useState({
     filas: 13,
     columnas: 13,
     PalabrasColoquiales: true,
@@ -86,6 +87,23 @@ function App() {
       e.returnValue = '';
     };
   
+    const checkStacked = () => {
+      const crossword = document.querySelector('.crossword-container');
+      const tabs = document.querySelector('.tabs-container');
+
+      if (crossword && tabs) {
+        const crosswordBottom = crossword.getBoundingClientRect().bottom;
+        const tabsTop = tabs.getBoundingClientRect().top;
+
+        // Si la parte inferior del crossword está por encima de la parte superior del tabs, están apilados
+        setIsStacked(crosswordBottom <= tabsTop);
+      }
+    };
+
+    // Verificar al cargar y al redimensionar
+    checkStacked();
+    window.addEventListener('resize', checkStacked);
+
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     // Limpiar eventos al desmontar el componente
@@ -97,6 +115,7 @@ function App() {
       socket.off('casillaActualizada');
       socket.off('estadisticasActualizadas');
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener('resize', checkStacked);
     };
   }, [tableroRespuestas, tableroVisible]);
 
@@ -564,7 +583,7 @@ function App() {
             showCopiedIcon={showCopiedIcon}
             onCopy={copiarCodigoSala}
           />
-          <div className="main-content">
+          <div className={`main-content ${isStacked ? 'stacked' : ''}`}>
           <div className="crossword-container">
               {tableroVisible && (
                 <div
@@ -691,8 +710,7 @@ function App() {
                 </div>
               )}
               <div className={`buttons-container ${!tableroVisible && !isLoading ? 'centered' : ''}`}>
-                {esAnfitrion && (
-                  <div>
+                {esAnfitrion ? (
                   <button disabled={isLoading} className="generate-button"
                     onClick={(e) => { e.stopPropagation(); generarCrucigrama(); }} 
                   >
@@ -740,8 +758,14 @@ function App() {
                       </>
                     )}
                   </button>
-                </div>
+                ) : (
+                  !tableroVisible && (
+                    <div className="waiting-message">
+                      Esperando a que el anfitrión genere el crucigrama...
+                    </div>
+                  )
                 )}
+                
                 {tableroVisible && (
                   <>
                     <button onClick={verificarCasilla}>Verificar Casilla</button>
@@ -750,7 +774,7 @@ function App() {
                   </>
                 )}
               </div>
-              {tableroVisible && (
+              {tableroVisible && !isStacked && (
                 <>
                   <p className="help-text">Usa las flechas para moverte entre casillas y Tab para cambiar la orientación.</p>
                 </>
