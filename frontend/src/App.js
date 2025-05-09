@@ -95,12 +95,10 @@ function App() {
         const crosswordBottom = crossword.getBoundingClientRect().bottom;
         const tabsTop = tabs.getBoundingClientRect().top;
 
-        // Si la parte inferior del crossword está por encima de la parte superior del tabs, están apilados
         setIsStacked(crosswordBottom <= tabsTop);
       }
     };
 
-    // Verificar al cargar y al redimensionar
     checkStacked();
     window.addEventListener('resize', checkStacked);
 
@@ -129,9 +127,9 @@ function App() {
     };
 
   const iniciarGeneracionCrucigrama = () => {
-    setIsLoading(true); // Activar el estado de carga
+    setIsLoading(true);
     socket.emit('generarCrucigrama', { codigoSala, configuracion: configuracionCrucigrama }, (response) => {
-      setIsLoading(false); // Desactivar el estado de carga
+      setIsLoading(false);
       if (response.error) {
         setError(response.error);
       } else {
@@ -213,7 +211,7 @@ function App() {
     while (inicio > 0 && tablero[fila][inicio - 1] !== '#') inicio--;
     let fin = columna;
     while (fin < tablero[fila].length && tablero[fila][fin] !== '#') fin++;
-    return fin - inicio > 1; // Hay una palabra si la longitud es mayor a 1
+    return fin - inicio > 1;
   };
 
   // Función para verificar si hay una palabra vertical en una casilla
@@ -222,12 +220,12 @@ function App() {
     while (inicio > 0 && tablero[inicio - 1][columna] !== '#') inicio--;
     let fin = fila;
     while (fin < tablero.length && tablero[fin][columna] !== '#') fin++;
-    return fin - inicio > 1; // Hay una palabra si la longitud es mayor a 1
+    return fin - inicio > 1;
   };
 
   const handleCasillaClick = (fila, columna) => {
     const casilla = tableroRespuestas[fila][columna];
-    if (casilla === '#') return; // No permitir seleccionar casillas negras
+    if (casilla === '#') return;
 
     const horizontal = tienePalabraHorizontal(fila, columna, tableroRespuestas);
     const vertical = tienePalabraVertical(fila, columna, tableroRespuestas);
@@ -308,7 +306,7 @@ function App() {
         intentarSeleccionarPalabra(fila, nuevaColumna);
       }
     } else if (e.key === 'Tab') {
-      e.preventDefault(); // Evitar el comportamiento predeterminado del tab
+      e.preventDefault();
       const horizontal = tienePalabraHorizontal(fila, columna, tableroRespuestas);
       const vertical = tienePalabraVertical(fila, columna, tableroRespuestas);
       if (horizontal && vertical) {
@@ -316,7 +314,6 @@ function App() {
       }
     }
   
-    // Actualizar la palabra seleccionada después de cambiar la casilla
     obtenerPalabraSeleccionada();
   };
 
@@ -328,7 +325,7 @@ function App() {
     };
     setConfiguracionCrucigrama(nuevaConfiguracion);
   
-    // Emitir la configuración al backend automáticamente
+    // Emitir la configuración al backend
     socket.emit('guardarConfiguracion', { codigoSala, configuracionCrucigrama: nuevaConfiguracion }, (response) => {
       if (response.error) {
         setError(response.error);
@@ -354,19 +351,17 @@ function App() {
     let esPalabraCorrecta = true;
   
     // Recorrer las casillas de la palabra seleccionada
-    palabraSeleccionada.forEach(({ fila, columna }, index) => {
+    palabraSeleccionada.forEach(({ fila, columna }) => {
       const letraCorrecta = tableroRespuestas[fila][columna];
       const letraVisible = tableroVisible[fila][columna];
   
       if (letraVisible !== letraCorrecta) {
-        // Si hay una casilla incorrecta, agregar animación de error
         nuevasAnimaciones.push({ fila, columna, tipo: 'error' });
-        esPalabraCorrecta = false; // Marcar que la palabra no es completamente correcta
+        esPalabraCorrecta = false;
       }
     });
   
     if (esPalabraCorrecta) {
-      // Si toda la palabra es correcta, aplicar animación de correcto a todas las casillas
       palabraSeleccionada.forEach(({ fila, columna }, index) => {
         nuevasAnimaciones.push({ fila, columna, tipo: 'correcto', delay: `${index * 0.1}s`, });
       });
@@ -383,7 +378,6 @@ function App() {
     tableroVisible.forEach((fila, filaIndex) => {
       fila.forEach((casilla, columnaIndex) => {
         if (casilla !== tableroRespuestas[filaIndex][columnaIndex]) {
-          // Si hay una casilla incorrecta, agregar animación de error
           nuevasAnimaciones.push({ fila: filaIndex, columna: columnaIndex, tipo: 'error'})
           esTodoCorrecto = false;
         }
@@ -655,7 +649,7 @@ function App() {
                                     }
                                   }
                                 } else if (e.key === 'Backspace') {
-                                  e.preventDefault(); // Evitar el comportamiento predeterminado
+                                  e.preventDefault();
                             
                                   const nuevoCrucigrama = [...tableroVisible];
                                   nuevoCrucigrama[filaIndex][columnaIndex] = '';

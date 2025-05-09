@@ -1,4 +1,4 @@
-const { obtenerPalabrasYDefiniciones } = require('./api');
+const { obtenerPalabrasYDefiniciones } = require('./diccionario');
 const { crearTablero } = require('./tablero');
 
 const generarCrucigrama = async (configuracion) => {
@@ -80,7 +80,7 @@ const generarCrucigrama = async (configuracion) => {
     return true;
   };
 
-  // Función genérica para colocar palabras en una dirección (horizontal o vertical)
+  // Función para colocar palabras en una dirección (horizontal o vertical)
   const colocarPalabras = (esHorizontal, inicio, limite, puedeColocar, colocarPalabra) => {
     let actual = inicio;
     while (actual < limite && indicesAleatorios.length > 0) {

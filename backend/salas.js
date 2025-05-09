@@ -157,7 +157,6 @@ const generarCrucigrama = async (socket, { codigoSala, configuracion }, callback
 const actualizarCasilla = (socket, { codigoSala, fila, columna, letra }) => {
   if (!salas[codigoSala]) return;
 
-  // Actualizar el tablero visible
   salas[codigoSala].tableroVisible[fila][columna] = letra;
 
   // Verificar si la letra es correcta

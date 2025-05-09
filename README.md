@@ -1,10 +1,14 @@
+![License](https://img.shields.io/github/license/Isroca23/Crucigramas-Cooperativos)
+![React](https://img.shields.io/badge/React-18.x-blue)
+![Node](https://img.shields.io/badge/Node-14.x-green)
+
 #  Crucigramas Cooperativos 
 
 ¡Hola a todos! Soy Isaac Rodríguez Cabezalí y este es mi proyecto escolar: ¡Crucigramas Cooperativos! 
 
-## 📖 Explicación de la idea del proyecto 📖
+## 📖 Sobre el Proyecto 📖
 
-Ultimamente las clases son muy aburridas asi que tantos mis compañeros como yo nos dedicamos a buscar cosas que hacer y formas de entretenernos. Los crucigramas siempre son una buena opción, pero no podemos jugarlos juntos. ¡Así fue como se me ocurrió crear una web de crucigramas cooperativos!
+Crucigramas Cooperativos es una aplicación web que reinventa el concepto tradicional de los crucigramas transformándolos en una experiencia social y colaborativa. La aplicación permite a múltiples usuarios resolver crucigramas en tiempo real, fomentando el aprendizaje del lenguaje y el trabajo en equipo.
 
 Los crucigramas no solo son divertidos, también nos ayudan a aprender palabras nuevas, a pensar de forma lógica y a trabajar en equipo.
 
@@ -14,23 +18,23 @@ Los crucigramas no solo son divertidos, también nos ayudan a aprender palabras 
 
 * 📱 **¡Accesible para todos!**  Utilizo tecnologías web como React.js y Node.js para crear una página que funcione en cualquier dispositivo con conexión a internet. Además, no es necesario registrarse ni descargar nada, lo que facilita mucho el acceso.
 
-* 🩷 **¡Para todos los gustos!**  Estoy implementando diferentes personalizaciones para la generación de crucigramas (cantidad de columnas y filas, acentuación, palabras coloquiales y en desuso...)
+* 🩷 **¡Para todos los gustos!**  He implementando diferentes personalizaciones para la generación de crucigramas (cantidad de columnas y filas, palabras coloquiales y en desuso...)
 
-* 🏆 **¡Estadísticas para picarse!** Al final de cada partida, los jugadores podrán ver sus estadísticas y compararlas con las de los demás. ¡Esto les motivará a seguir jugando y mejorando!"
+* 🏆 **¡Estadísticas para picarse!** Al final de cada partida, los jugadores puede ver sus estadísticas y compararlas con las de los demás. ¡Esto motiva a seguir jugando y mejorando!"
 
 ## 🌐 Tecnologías usadas 🌐
 
 * **Frontend:**
-    🧠 React.js: Es una librería de JavaScript muy potente que me permite crear interfaces de usuario interactivas y dinámicas. ¡Es perfecta para mi juego!
-    ✨ TailwindCSS: Es un framework de CSS que me ayuda a diseñar la página web de forma rápida y sencilla. ¡Además, me permite crear un diseño moderno y atractivo!
+    🧠 React.js: Librería de JavaScript que proporciona una interfaz de usuario interactiva y dinámica.
+    ✨ TailwindCSS: Framework de CSS que facilita un diseño moderno y responsive.
 
 * **Backend:**
-    ⚙️ Node.js con Express: Es un entorno de ejecución de JavaScript que me permite crear servidores web de forma fácil y eficiente. ¡Se encarga de que todo funcione por detrás!
-    ⏱️ Socket.IO: Es una librería que me permite crear conexiones en tiempo real entre el servidor y los clientes. ¡Gracias a ella, los jugadores pueden ver los cambios en el crucigrama al instante!
+    ⚙️ Node.js con Express: Entorno de ejecución que gestiona la lógica del servidor de forma eficiente.
+    ⏱️ Socket.IO: Sistema de comunicación en tiempo real entre servidor y clientes.
 
-* **Alojamiento:**
-    💻 Vercel: Es una plataforma que me permite desplegar mi página web de forma rápida y sencilla. ¡Así, mi juego está siempre disponible para todo el mundo!
-    🌐 Render: Es una plataforma especializada en backends que me permite desplegar mi servidor para que la web pueda acceder.
+* **Despliegue:**
+    💻 Vercel: Plataforma de hosting para el frontend.
+    🌐 Render: Servicio de alojamiento especializado para el backend.
 
 ## 📈 Diagramas 📈
 
@@ -63,7 +67,6 @@ Es una letra C de Crucigramas y de Cooperativos formada por piezas de rompecabez
 * **¡Crea tu sala!**  El jugador que crea la sala recibe un código para invitar a sus amigos.
 * **¡A tu gusto!**  El anfitrión puede personalizar el crucigrama antes de generarlo.
 * **¡Sincronización mágica!**  Todos los jugadores ven en tiempo real las letras que se escriben en el crucigrama.
-* **¡Casillas destacadas!**  La casilla donde está escribiendo un jugador se destaca para evitar confusiones.
 * **¡Estadísticas al final!**  Cada jugador puede ver sus estadísticas al final de la partida.
 
 ## ️🗺️ Roadmap en Linear 🗺️
@@ -76,7 +79,47 @@ Este es el repositorio oficial con todo el codigo de mi proyecto:
 
 https://github.com/Isroca23/Crucigramas-Cooperativos
 
+### 📁 Estructura del Proyecto 📁
+```
+crucigramas-cooperativos/
+├── backend/                 
+│   ├── api.js              # Gestión de API y lectura del diccionario
+│   ├── crucigramas.js      # Lógica de generación de crucigramas
+│   ├── diccionario.js      # Gestión del diccionario de palabras
+│   ├── estadisticas.js     # Sistema de puntuación y estadísticas
+│   ├── index.js            # Punto de entrada del servidor
+│   ├── salas.js            # Gestión de salas y jugadores
+│   ├── socketHandlers.js   # Manejadores de eventos Socket.IO
+│   └── tablero.js          # Funciones del tablero de juego
+│
+├── frontend/               
+│   ├── src/               
+│   │   ├── componentes/   
+│   │   │   ├── Definiciones.js    # Muestra definiciones de palabras
+│   │   │   ├── Estadisticas.js    # Muestra puntuaciones
+│   │   │   ├── Header.js          # Barra superior
+│   │   │   ├── InitialScreen.js   # Pantalla inicial
+│   │   │   ├── Modal.js           # Ventanas modales
+│   │   │   ├── SubHeader.js       # Barra inferior del header
+│   │   │   └── TabsContainer.js   # Contenedor de pestañas
+│   │   │
+│   │   ├── App.js        # Componente principal
+│   │   ├── App.css       # Estilos principales
+│   │   └── index.js      # Punto de entrada React
+│   │
+│   └── package.json      # Dependencias frontend
+│
+├── .gitignore           
+├── LICENSE              # Licencia MIT
+└── README.md           # Documentación
+```
+
 ## 🔧 Instalación y Ejecución Local🔧
+
+### 📋 Requisitos Previos 📋
+* Node.js (v14 o superior)
+* npm (v6 o superior)
+* Git
 
 ### 1️⃣ Clonar el Repositorio 1️⃣
 ```bash
@@ -103,3 +146,10 @@ npm start
 Si te gusta mi proyecto y quieres ayudarme a mejorarlo, ¡no dudes en contactarme!
 
 ¡Espero que te guste mi juego!
+
+## 🤝 Contribución 🤝
+1. Haz un Fork del proyecto
+2. Crea tu rama de característica (`git checkout -b feature/AmazingFeature`)
+3. Haz commit de tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Haz Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request

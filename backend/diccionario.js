@@ -1,5 +1,5 @@
-const fs = require('fs'); // Para trabajar con el sistema de archivos
-const path = require('path'); // Para manejar rutas de archivos
+const fs = require('fs');
+const path = require('path');
 
 const obtenerPalabrasYDefiniciones = async () => {
   return new Promise((resolve, reject) => {
